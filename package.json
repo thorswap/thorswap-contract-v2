@@ -1,0 +1,29 @@
+{
+  "name": "thorswap-aggregator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kiasaki/thorswap-aggregator.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kiasaki/thorswap-aggregator/issues"
+  },
+  "homepage": "https://github.com/kiasaki/thorswap-aggregator#readme",
+  "dependencies": {
+    "@nomiclabs/hardhat-ethers": "2.0.4",
+    "@nomiclabs/hardhat-etherscan": "3.0.0",
+    "ethers": "5.5.3",
+    "hardhat": "2.8.2"
+  }
+}
