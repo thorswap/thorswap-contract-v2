@@ -7,7 +7,7 @@ module.exports = {
     hardhat: {},
     mainnet: {
       url: "https://mainnet.infura.io/v3/f9dfccab907d4cc891817733689eaff4",
-      accounts: [process.env.MAIN_WALLET_PRIVATE_KEY],
+      accounts: [process.env.THORSWAP_WALLET_PRIVATE_KEY],
     },
   },
   solidity: {
