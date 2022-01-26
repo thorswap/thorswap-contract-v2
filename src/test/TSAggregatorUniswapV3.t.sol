@@ -3,9 +3,9 @@ pragma solidity 0.8.10;
 
 import { DSTest } from "../../lib/DSTest.sol";
 import { TestERC20 } from "./TestERC20.sol";
-import { TSAggregatorUniswapV2 } from "../TSAggregatorUniswapV2.sol";
+import { TSAggregatorUniswapV3, IUniswapRouterV3 } from "../TSAggregatorUniswapV3.sol";
 
-contract TSAggregatorUniswapV2Test is DSTest {
+contract TSAggregatorUniswapV3Test is DSTest {
     uint swapRouterAmount;
     uint swapRouterAmountOutMin;
     address swapRouterPath0;
@@ -21,24 +21,25 @@ contract TSAggregatorUniswapV2Test is DSTest {
 
     TestERC20 weth;
     TestERC20 token;
-    TSAggregatorUniswapV2 agg;
+    TSAggregatorUniswapV3 agg;
 
     function setUp() public {
         weth = new TestERC20();
         token = new TestERC20();
-        agg = new TSAggregatorUniswapV2(address(weth), address(this));
+        agg = new TSAggregatorUniswapV3(3000, address(weth), address(this));
     }
 
-    function swapExactTokensForETH(
-        uint amount, uint amountOutMin, address[] calldata path, address to, uint deadline
-    ) public {
-        swapRouterAmount = amount;
-        swapRouterAmountOutMin = amountOutMin;
-        swapRouterPath0 = path[0];
-        swapRouterPath1 = path[1];
-        swapRouterTo = to;
-        swapRouterDeadline = deadline;
-        vm.deal(msg.sender, 2e18);
+    function exactInputSingle(IUniswapRouterV3.ExactInputSingleParams calldata params) public returns (uint) {
+        swapRouterAmount = params.amountIn;
+        swapRouterAmountOutMin = params.amountOutMinimum;
+        swapRouterPath0 = params.tokenIn;
+        swapRouterPath1 = params.tokenOut;
+        swapRouterTo = params.recipient;
+        swapRouterDeadline = params.deadline;
+        vm.deal(address(this), 2e18);
+        weth.deposit{value: 2e18}();
+        weth.transfer(msg.sender, 2e18);
+        return 2e18;
     }
 
     function depositWithExpiry(

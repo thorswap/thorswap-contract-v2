@@ -11,7 +11,7 @@ async function main() {
   );
   // https://stagenet-midgard.ninerealms.com/v2/thorchain/inbound_addresses
   const router = "0xf5583092dE43C2E40dA895e22CD43978C054241B";
-  const vault = "0xcb3217018bb4b753d2117b1d7e064839ab76aee5";
+  const vault = "0xfa02bd37099f283852a3b7122f9f6539cd627ef6";
   const sushi = "0x6b3595068778dd592e39a122f4f5a5cf09c90fe2";
   const tx = await contract.swapIn(
     router,
@@ -21,7 +21,7 @@ async function main() {
     parseUnits("0.1"),
     1,
     (Date.now() / 1000) | (60 * 60),
-    { gasPrice }
+    { gasLimit: 600000, gasPrice }
   );
   console.log("hash", tx.hash);
   await tx.wait();

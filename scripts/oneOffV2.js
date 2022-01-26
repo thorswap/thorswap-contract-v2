@@ -1,3 +1,4 @@
+const https = require("https");
 const hre = require("hardhat");
 
 const parseUnits = ethers.utils.parseUnits;
@@ -9,9 +10,11 @@ async function main() {
   const contract = Contract.attach(
     "0x1e181df53d07b698c6a58ca6308ab5d827f116e1"
   );
-  // https://stagenet-midgard.ninerealms.com/v2/thorchain/inbound_addresses
-  const router = "0xf5583092dE43C2E40dA895e22CD43978C054241B";
-  const vault = "0xcb3217018bb4b753d2117b1d7e064839ab76aee5";
+  const apiUrl =
+    "https://stagenet-midgard.ninerealms.com/v2/thorchain/inbound_addresses";
+  const ethChain = (await httpRequest(apiUrl)).find((c) => c.chain === "ETH");
+  const router = ethChain.router;
+  const vault = ethChain.address;
   const sushi = "0x6b3595068778dd592e39a122f4f5a5cf09c90fe2";
   const tx = await contract.swapIn(
     router,
@@ -33,3 +36,30 @@ main()
     console.error(error);
     process.exit(1);
   });
+
+function httpRequest(url, options = {}) {
+  return new Promise((resolve, reject) => {
+    const req = https.request(url, options, (res) => {
+      let responseBody = "";
+      res.on("data", (chunk) => {
+        responseBody += chunk;
+      });
+      res.on("end", () => {
+        try {
+          if (res.statusCode < 200 || 300 <= res.statusCode) {
+            throw new Error(
+              `Non 2xx status code: ${res.statusCode}: ${responseBody}`
+            );
+          }
+          resolve(JSON.parse(responseBody));
+        } catch (err) {
+          reject(err);
+        }
+      });
+      res.on("error", (err) => {
+        reject(err);
+      });
+    });
+    req.end();
+  });
+}

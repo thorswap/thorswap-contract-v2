@@ -9,6 +9,10 @@ module.exports = {
       url: "https://mainnet.infura.io/v3/f9dfccab907d4cc891817733689eaff4",
       accounts: [process.env.THORSWAP_WALLET_PRIVATE_KEY],
     },
+    ropsten: {
+      url: "https://ropsten.infura.io/v3/f9dfccab907d4cc891817733689eaff4",
+      accounts: [process.env.THORSWAP_WALLET_PRIVATE_KEY],
+    },
   },
   solidity: {
     version: "0.8.10",
