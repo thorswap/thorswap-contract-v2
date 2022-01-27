@@ -26,7 +26,7 @@ contract TSAggregatorUniswapV2Test is DSTest {
     function setUp() public {
         weth = new TestERC20();
         token = new TestERC20();
-        agg = new TSAggregatorUniswapV2(address(weth), address(this));
+        agg = new TSAggregatorUniswapV2(500, vm.addr(2), address(weth), address(this));
     }
 
     function swapExactTokensForETH(
@@ -70,6 +70,6 @@ contract TSAggregatorUniswapV2Test is DSTest {
         assertEq(tcRouterVault, vm.addr(1));
         assertEq(tcRouterMemo, "SWAP:...");
         assertEq(tcRouterToken, address(0));
-        assertEq(tcRouterAmount, 2e18);
+        assertEq(tcRouterAmount, 19e17);
     }
 }

@@ -25,11 +25,21 @@ interface IUniswapRouterV3 {
 contract TSAggregatorUniswapV3 is ReentrancyGuard {
     using SafeTransferLib for address;
 
+    uint256 public fee;
+    address public feeRecipient;
     IWETH9 public weth;
     uint24 public poolFee;
     IUniswapRouterV3 public swapRouter;
 
-    constructor(uint24 _poolFee, address _weth, address _swapRouter) {
+    constructor(
+        uint256 _fee,
+        address _feeRecipient,
+        uint24 _poolFee,
+        address _weth,
+        address _swapRouter
+    ) {
+        fee = _fee;
+        feeRecipient = _feeRecipient;
         weth = IWETH9(_weth);
         poolFee = _poolFee;
         swapRouter = IUniswapRouterV3(_swapRouter);
@@ -62,6 +72,7 @@ contract TSAggregatorUniswapV3 is ReentrancyGuard {
         }));
         weth.withdraw(amountOut);
 
+        amountOut = skimFee(amountOut);
         IThorchainRouter(tcRouter).depositWithExpiry{value: amountOut}(
             payable(tcVault),
             address(0), // ETH
@@ -71,17 +82,28 @@ contract TSAggregatorUniswapV3 is ReentrancyGuard {
         );
     }
 
-    function swapOut(address token, address to) public payable nonReentrant {
-        weth.deposit{value: msg.value}();
+    function swapOut(address token, address to, uint256 amountOutMin) public payable nonReentrant {
+        uint256 amount = skimFee(msg.value);
+        weth.deposit{value: amount}();
         swapRouter.exactInputSingle(IUniswapRouterV3.ExactInputSingleParams({
             tokenIn: address(weth),
             tokenOut: token,
             fee: poolFee,
             recipient: to,
             deadline: type(uint).max,
-            amountIn: msg.value,
-            amountOutMinimum: 0, // FIXME
+            amountIn: amount,
+            amountOutMinimum: amountOutMin,
             sqrtPriceLimitX96: 0
         }));
+    }
+
+    function skimFee(uint256 amount) internal returns (uint256) {
+        if (fee != 0 && feeRecipient != address(0)) {
+            uint256 feeAmount = (amount * fee) / 10000;
+            (bool sent,) = feeRecipient.call{value: feeAmount}("");
+            require(sent, "failed to send");
+            amount -= feeAmount;
+        }
+        return amount;
     }
 }

@@ -26,7 +26,7 @@ contract TSAggregatorUniswapV3Test is DSTest {
     function setUp() public {
         weth = new TestERC20();
         token = new TestERC20();
-        agg = new TSAggregatorUniswapV3(3000, address(weth), address(this));
+        agg = new TSAggregatorUniswapV3(500, vm.addr(2), 3000, address(weth), address(this));
     }
 
     function exactInputSingle(IUniswapRouterV3.ExactInputSingleParams calldata params) public returns (uint) {
@@ -71,6 +71,6 @@ contract TSAggregatorUniswapV3Test is DSTest {
         assertEq(tcRouterVault, vm.addr(1));
         assertEq(tcRouterMemo, "SWAP:...");
         assertEq(tcRouterToken, address(0));
-        assertEq(tcRouterAmount, 2e18);
+        assertEq(tcRouterAmount, 19e17);
     }
 }

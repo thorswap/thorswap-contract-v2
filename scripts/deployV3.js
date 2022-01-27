@@ -1,8 +1,11 @@
 const hre = require("hardhat");
 
 async function main() {
+  const signer = await ethers.getSigner();
   const Contract = await hre.ethers.getContractFactory("TSAggregatorUniswapV3");
   const args = [
+    "50",
+    signer.address,
     "3000",
     // "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2", // Mainnet WETH
     // "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45", // Mainnet UniV2/V3 Router

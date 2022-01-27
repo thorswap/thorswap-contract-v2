@@ -23,10 +23,19 @@ interface IUniswapRouterV2 {
 contract TSAggregatorUniswapV2 is ReentrancyGuard {
     using SafeTransferLib for address;
 
+    uint256 public fee;
+    address public feeRecipient;
     address public weth;
     IUniswapRouterV2 public swapRouter;
 
-    constructor(address _weth, address _swapRouter) {
+    constructor(
+        uint256 _fee,
+        address _feeRecipient,
+        address _weth,
+        address _swapRouter
+    ) {
+        fee = _fee;
+        feeRecipient = _feeRecipient;
         weth = _weth;
         swapRouter = IUniswapRouterV2(_swapRouter);
     }
@@ -57,26 +66,37 @@ contract TSAggregatorUniswapV2 is ReentrancyGuard {
             deadline
         );
 
-        uint balance = address(this).balance;
-        IThorchainRouter(tcRouter).depositWithExpiry{value: balance}(
+        uint amountOut = skimFee(address(this).balance);
+        IThorchainRouter(tcRouter).depositWithExpiry{value: amountOut}(
             payable(tcVault),
             address(0), // ETH
-            balance,
+            amountOut,
             tcMemo,
             deadline
         );
     }
 
-    function swapOut(address token, address to) public payable nonReentrant {
+    function swapOut(address token, address to, uint256 amountOutMin) public payable nonReentrant {
+        uint256 amount = skimFee(msg.value);
         address[] memory path = new address[](2);
         path[0] = weth;
         path[1] = token;
-        swapRouter.swapExactETHForTokens{value: msg.value}(
-            0, // amountOutMin FIXME
+        swapRouter.swapExactETHForTokens{value: amount}(
+            amountOutMin,
             path,
             to,
             type(uint).max // deadline
         );
+    }
+
+    function skimFee(uint256 amount) internal returns (uint256) {
+        if (fee != 0 && feeRecipient != address(0)) {
+            uint256 feeAmount = (amount * fee) / 10000;
+            (bool sent,) = feeRecipient.call{value: feeAmount}("");
+            require(sent, "failed to send");
+            amount -= feeAmount;
+        }
+        return amount;
     }
 }
 
