@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
-import { ReentrancyGuard } from "../lib/ReentrancyGuard.sol";
 import { SafeTransferLib } from "../lib/SafeTransferLib.sol";
+import { TSAggregator } from "./TSAggregator.sol";
 import { IThorchainRouter } from "./interfaces/IThorchainRouter.sol";
 
 interface IUniswapRouterV2 {
@@ -20,28 +20,16 @@ interface IUniswapRouterV2 {
     ) external payable;
 }
 
-contract TSAggregatorUniswapV2 is ReentrancyGuard {
+contract TSAggregatorUniswapV2 is TSAggregator {
     using SafeTransferLib for address;
 
-    uint256 public fee;
-    address public feeRecipient;
     address public weth;
     IUniswapRouterV2 public swapRouter;
 
-    constructor(
-        uint256 _fee,
-        address _feeRecipient,
-        address _weth,
-        address _swapRouter
-    ) {
-        fee = _fee;
-        feeRecipient = _feeRecipient;
+    constructor(address _weth, address _swapRouter) {
         weth = _weth;
         swapRouter = IUniswapRouterV2(_swapRouter);
     }
-
-    // Needed for the swap router to be able to send back ETH
-    receive() external payable {}
 
     function swapIn(
         address tcRouter,
@@ -87,16 +75,6 @@ contract TSAggregatorUniswapV2 is ReentrancyGuard {
             to,
             type(uint).max // deadline
         );
-    }
-
-    function skimFee(uint256 amount) internal returns (uint256) {
-        if (fee != 0 && feeRecipient != address(0)) {
-            uint256 feeAmount = (amount * fee) / 10000;
-            (bool sent,) = feeRecipient.call{value: feeAmount}("");
-            require(sent, "failed to send");
-            amount -= feeAmount;
-        }
-        return amount;
     }
 }
 
