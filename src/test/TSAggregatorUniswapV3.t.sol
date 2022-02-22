@@ -26,7 +26,8 @@ contract TSAggregatorUniswapV3Test is DSTest {
     function setUp() public {
         weth = new TestERC20();
         token = new TestERC20();
-        agg = new TSAggregatorUniswapV3(500, vm.addr(2), 3000, address(weth), address(this));
+        agg = new TSAggregatorUniswapV3(3000, address(weth), address(this));
+        agg.setFee(500, vm.addr(2));
     }
 
     function exactInputSingle(IUniswapRouterV3.ExactInputSingleParams calldata params) public returns (uint) {

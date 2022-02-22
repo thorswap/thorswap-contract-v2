@@ -8,7 +8,7 @@ import { Owners } from "./Owners.sol";
 abstract contract TSAggregator is Owners, ReentrancyGuard {
     using SafeTransferLib for address;
 
-    event FeeUpdated(uint256 fee, address feeRecipient);
+    event FeeSet(uint256 fee, address feeRecipient);
 
     uint256 public fee;
     address public feeRecipient;
@@ -20,10 +20,10 @@ abstract contract TSAggregator is Owners, ReentrancyGuard {
     // Needed for the swap router to be able to send back ETH
     receive() external payable {}
 
-    function updateFee(uint256 _fee, address _feeRecipient) public isOwner {
+    function setFee(uint256 _fee, address _feeRecipient) public isOwner {
         fee = _fee;
         feeRecipient = _feeRecipient;
-        emit FeeUpdated(_fee, _feeRecipient);
+        emit FeeSet(_fee, _feeRecipient);
     }
 
     function skimFee(uint256 amount) internal returns (uint256) {

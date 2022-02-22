@@ -26,7 +26,8 @@ contract TSAggregatorUniswapV2Test is DSTest {
     function setUp() public {
         weth = new TestERC20();
         token = new TestERC20();
-        agg = new TSAggregatorUniswapV2(500, vm.addr(2), address(weth), address(this));
+        agg = new TSAggregatorUniswapV2(address(weth), address(this));
+        agg.setFee(500, vm.addr(2));
     }
 
     function swapExactTokensForETH(

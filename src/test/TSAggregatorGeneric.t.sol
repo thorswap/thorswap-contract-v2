@@ -18,7 +18,8 @@ contract TSAggregatorGenericTest is DSTest {
 
     function setUp() public {
         token = new TestERC20();
-        agg = new TSAggregatorGeneric(500, vm.addr(2));
+        agg = new TSAggregatorGeneric();
+        agg.setFee(500, vm.addr(2));
     }
 
     function mockSwap() public {
