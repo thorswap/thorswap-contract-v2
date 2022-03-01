@@ -23,7 +23,7 @@ exports.handler = async function (event) {
   const contractSushi = new ethers.Contract(contractSushi, abiSushi, signer);
   const contractThor = new ethers.Contract(contractThor, abiThor, signer);
 
-  const amount = await signer.getBlance();
+  const amount = await signer.getBlance().sub(ethers.utils.parseUnits("1"));
   const buybackAmount = amount.mul("75").div("100");
 
   // Send 25% of ETH balance to treasury
