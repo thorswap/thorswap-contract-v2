@@ -3,6 +3,7 @@ pragma solidity 0.8.10;
 
 import { SafeTransferLib } from "../lib/SafeTransferLib.sol";
 import { TSAggregator } from "./TSAggregator.sol";
+import { IERC20 } from "./interfaces/IERC20.sol";
 import { IThorchainRouter } from "./interfaces/IThorchainRouter.sol";
 
 contract TSAggregatorGeneric is TSAggregator {
@@ -24,6 +25,7 @@ contract TSAggregatorGeneric is TSAggregator {
         uint deadline
     ) public nonReentrant {
         token.safeTransferFrom(msg.sender, address(this), amount);
+        require(IERC20(token).allowance(msg.sender, address(this)) == 0, "extra allowance is dangerous");
         token.safeApprove(address(router), amount);
 
         (bool success,) = router.call(data);
