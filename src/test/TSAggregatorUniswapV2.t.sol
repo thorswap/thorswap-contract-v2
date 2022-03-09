@@ -30,6 +30,16 @@ contract TSAggregatorUniswapV2Test is DSTest {
         agg.setFee(500, vm.addr(2));
     }
 
+    function swapExactETHForTokens(
+        uint amountOutMin, address[] calldata path, address to, uint deadline
+    ) public payable {
+        swapRouterAmountOutMin = amountOutMin;
+        swapRouterPath0 = path[0];
+        swapRouterPath1 = path[1];
+        swapRouterTo = to;
+        swapRouterDeadline = deadline;
+    }
+
     function swapExactTokensForETH(
         uint amount, uint amountOutMin, address[] calldata path, address to, uint deadline
     ) public {
@@ -43,10 +53,10 @@ contract TSAggregatorUniswapV2Test is DSTest {
     }
 
     function depositWithExpiry(
-        address vault, address token, uint amount, string calldata memo, uint deadline
+        address vault, address tokenAddress, uint amount, string calldata memo, uint deadline
     ) public payable {
         tcRouterVault = vault;
-        tcRouterToken = token;
+        tcRouterToken = tokenAddress;
         tcRouterAmount = amount;
         tcRouterMemo = memo;
         tcRouterDeadline = deadline;
@@ -72,5 +82,19 @@ contract TSAggregatorUniswapV2Test is DSTest {
         assertEq(tcRouterMemo, "SWAP:...");
         assertEq(tcRouterToken, address(0));
         assertEq(tcRouterAmount, 19e17);
+    }
+
+    function testSwapOut() public {
+        vm.deal(address(this), 1e18);
+        agg.swapOut{value: 1e18}(
+            address(token),
+            vm.addr(1),
+            4e18
+        );
+        assertEq(swapRouterAmountOutMin, 4e18);
+        assertEq(swapRouterTo, vm.addr(1));
+        assertEq(swapRouterDeadline, type(uint).max);
+        assertEq(swapRouterPath0, address(weth));
+        assertEq(swapRouterPath1, address(token));
     }
 }

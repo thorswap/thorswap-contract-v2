@@ -11,10 +11,12 @@ contract TSAggregatorUniswapV2 is TSAggregator {
 
     address public weth;
     IUniswapRouterV2 public swapRouter;
+    address public legToken;
 
-    constructor(address _weth, address _swapRouter) {
+    constructor(address _weth, address _swapRouter, address _legToken) {
         weth = _weth;
         swapRouter = IUniswapRouterV2(_swapRouter);
+        legToken = _legToken;
     }
 
     function swapIn(
@@ -29,9 +31,10 @@ contract TSAggregatorUniswapV2 is TSAggregator {
         token.safeTransferFrom(msg.sender, address(this), amount);
         token.safeApprove(address(swapRouter), amount);
 
-        address[] memory path = new address[](2);
+        address[] memory path = new address[](3);
         path[0] = token;
-        path[1] = weth;
+        path[1] = legToken;
+        path[2] = weth;
         swapRouter.swapExactTokensForETH(
             amount,
             amountOutMin,
@@ -52,9 +55,10 @@ contract TSAggregatorUniswapV2 is TSAggregator {
 
     function swapOut(address token, address to, uint256 amountOutMin) public payable nonReentrant {
         uint256 amount = skimFee(msg.value);
-        address[] memory path = new address[](2);
+        address[] memory path = new address[](3);
         path[0] = weth;
-        path[1] = token;
+        path[1] = legToken;
+        path[2] = token;
         swapRouter.swapExactETHForTokens{value: amount}(
             amountOutMin,
             path,

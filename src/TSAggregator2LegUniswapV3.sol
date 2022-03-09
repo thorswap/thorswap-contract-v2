@@ -13,11 +13,15 @@ contract TSAggregatorUniswapV3 is TSAggregator {
     IWETH9 public weth;
     uint24 public poolFee;
     IUniswapRouterV3 public swapRouter;
+    address public legToken;
+    uint24 public legPoolFee;
 
-    constructor(uint24 _poolFee, address _weth, address _swapRouter) {
+    constructor(uint24 _poolFee, address _weth, address _swapRouter, address _legToken, uint24 _legPoolFee) {
         weth = IWETH9(_weth);
         poolFee = _poolFee;
         swapRouter = IUniswapRouterV3(_swapRouter);
+        legToken = _legToken;
+        legPoolFee = _legPoolFee;
     }
 
     function swapIn(
@@ -32,15 +36,13 @@ contract TSAggregatorUniswapV3 is TSAggregator {
         token.safeTransferFrom(msg.sender, address(this), amount);
         token.safeApprove(address(swapRouter), amount);
 
-        uint amountOut = swapRouter.exactInputSingle(IUniswapRouterV3.ExactInputSingleParams({
-            tokenIn: token,
-            tokenOut: address(weth),
-            fee: poolFee,
+        bytes memory path = abi.encodePacked(token, poolFee, legToken, legPoolFee, address(weth));
+        uint amountOut = swapRouter.exactInput(IUniswapRouterV3.ExactInputParams({
+            path: path,
             recipient: address(this),
             deadline: deadline,
             amountIn: amount,
-            amountOutMinimum: amountOutMin,
-            sqrtPriceLimitX96: 0
+            amountOutMinimum: amountOutMin
         }));
         weth.withdraw(amountOut);
 
@@ -56,16 +58,14 @@ contract TSAggregatorUniswapV3 is TSAggregator {
 
     function swapOut(address token, address to, uint256 amountOutMin) public payable nonReentrant {
         uint256 amount = skimFee(msg.value);
+        bytes memory path = abi.encodePacked(address(weth), legPoolFee, legToken, poolFee, token);
         weth.deposit{value: amount}();
-        swapRouter.exactInputSingle(IUniswapRouterV3.ExactInputSingleParams({
-            tokenIn: address(weth),
-            tokenOut: token,
-            fee: poolFee,
+        swapRouter.exactInput(IUniswapRouterV3.ExactInputParams({
+            path: path,
             recipient: to,
             deadline: type(uint).max,
             amountIn: amount,
-            amountOutMinimum: amountOutMin,
-            sqrtPriceLimitX96: 0
+            amountOutMinimum: amountOutMin
         }));
     }
 }
