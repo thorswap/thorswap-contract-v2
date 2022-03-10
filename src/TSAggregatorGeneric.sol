@@ -5,9 +5,16 @@ import { SafeTransferLib } from "../lib/SafeTransferLib.sol";
 import { TSAggregator } from "./TSAggregator.sol";
 import { IERC20 } from "./interfaces/IERC20.sol";
 import { IThorchainRouter } from "./interfaces/IThorchainRouter.sol";
+import { TSAggregatorTokenTransferProxy } from './TSAggregatorTokenTransferProxy.sol';
 
 contract TSAggregatorGeneric is TSAggregator {
     using SafeTransferLib for address;
+
+    TSAggregatorTokenTransferProxy public tokenTransferProxy;
+
+    constructor(address _tokenTransferProxy) {
+        tokenTransferProxy = TSAggregatorTokenTransferProxy(_tokenTransferProxy);
+    }
 
     // Use 1inch's swap API endpoint to get data to send
     // e.g. https://api.1inch.io/v4.0/1/swap?toTokenAddress=0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE&fromTokenAddress=0x111111111117dc0aa78b770fa6a738034120c302&amount=10000000000000000&fromAddress=0x2f8aedd149afbdb5206ecaf8b1a3abb9186c8053&slippage=1&disableEstimate=true
@@ -24,8 +31,7 @@ contract TSAggregatorGeneric is TSAggregator {
         bytes calldata data,
         uint deadline
     ) public nonReentrant {
-        token.safeTransferFrom(msg.sender, address(this), amount);
-        require(IERC20(token).allowance(msg.sender, address(this)) == 0, "extra allowance is dangerous");
+        tokenTransferProxy.transferTokens(token, msg.sender, address(this), amount);
         token.safeApprove(address(router), 0); // USDT quirk
         token.safeApprove(address(router), amount);
 

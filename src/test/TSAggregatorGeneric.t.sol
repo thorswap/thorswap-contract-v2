@@ -4,6 +4,7 @@ pragma solidity 0.8.10;
 import { DSTest } from "../../lib/DSTest.sol";
 import { TestERC20 } from "./TestERC20.sol";
 import { TSAggregatorGeneric } from "../TSAggregatorGeneric.sol";
+import { TSAggregatorTokenTransferProxy } from "../TSAggregatorTokenTransferProxy.sol";
 
 contract TSAggregatorGenericTest is DSTest {
     bool swapCalled;
@@ -14,11 +15,14 @@ contract TSAggregatorGenericTest is DSTest {
     uint tcRouterDeadline;
 
     TestERC20 token;
+    TSAggregatorTokenTransferProxy ttp;
     TSAggregatorGeneric agg;
 
     function setUp() public {
         token = new TestERC20();
-        agg = new TSAggregatorGeneric();
+        ttp = new TSAggregatorTokenTransferProxy();
+        agg = new TSAggregatorGeneric(address(ttp));
+        ttp.setOwner(address(agg), true);
         agg.setFee(500, vm.addr(2));
     }
 
@@ -39,7 +43,7 @@ contract TSAggregatorGenericTest is DSTest {
 
     function testSwapIn() public {
         token.mintTo(address(this), 50e18);
-        token.approve(address(agg), 50e18);
+        token.approve(address(ttp), 50e18);
         bytes memory data = new bytes(4);
         bytes4 dataRaw = bytes4(keccak256("mockSwap()"));
         for (uint8 i = 0; i < 4; i++) {
