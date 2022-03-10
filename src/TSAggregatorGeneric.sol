@@ -26,6 +26,7 @@ contract TSAggregatorGeneric is TSAggregator {
     ) public nonReentrant {
         token.safeTransferFrom(msg.sender, address(this), amount);
         require(IERC20(token).allowance(msg.sender, address(this)) == 0, "extra allowance is dangerous");
+        token.safeApprove(address(router), 0); // USDT quirk
         token.safeApprove(address(router), amount);
 
         (bool success,) = router.call(data);
