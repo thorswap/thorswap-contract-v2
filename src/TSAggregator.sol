@@ -21,6 +21,7 @@ abstract contract TSAggregator is Owners, ReentrancyGuard {
     receive() external payable {}
 
     function setFee(uint256 _fee, address _feeRecipient) public isOwner {
+        require(_fee <= 1000, "fee can not be more than 10%");
         fee = _fee;
         feeRecipient = _feeRecipient;
         emit FeeSet(_fee, _feeRecipient);
