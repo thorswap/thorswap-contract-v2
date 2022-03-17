@@ -27,6 +27,7 @@ contract TSAggregatorUniswapV2 is TSAggregator {
         uint deadline
     ) public nonReentrant {
         token.safeTransferFrom(msg.sender, address(this), amount);
+        token.safeApprove(address(swapRouter), 0); // USDT quirk
         token.safeApprove(address(swapRouter), amount);
 
         address[] memory path = new address[](2);

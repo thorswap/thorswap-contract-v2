@@ -30,6 +30,7 @@ contract TSAggregatorUniswapV3 is TSAggregator {
         uint deadline
     ) public nonReentrant {
         token.safeTransferFrom(msg.sender, address(this), amount);
+        token.safeApprove(address(swapRouter), 0); // USDT quirk
         token.safeApprove(address(swapRouter), amount);
 
         uint amountOut = swapRouter.exactInputSingle(IUniswapRouterV3.ExactInputSingleParams({

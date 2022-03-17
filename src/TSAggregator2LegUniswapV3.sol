@@ -34,6 +34,7 @@ contract TSAggregatorUniswapV3 is TSAggregator {
         uint deadline
     ) public nonReentrant {
         token.safeTransferFrom(msg.sender, address(this), amount);
+        token.safeApprove(address(swapRouter), 0); // USDT quirk
         token.safeApprove(address(swapRouter), amount);
 
         bytes memory path = abi.encodePacked(token, poolFee, legToken, legPoolFee, address(weth));
