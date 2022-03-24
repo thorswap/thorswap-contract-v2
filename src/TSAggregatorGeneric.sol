@@ -10,10 +10,7 @@ import { TSAggregatorTokenTransferProxy } from './TSAggregatorTokenTransferProxy
 contract TSAggregatorGeneric is TSAggregator {
     using SafeTransferLib for address;
 
-    TSAggregatorTokenTransferProxy public tokenTransferProxy;
-
-    constructor(address _tokenTransferProxy) {
-        tokenTransferProxy = TSAggregatorTokenTransferProxy(_tokenTransferProxy);
+    constructor(address _ttp) TSAggregator(_ttp) {
     }
 
     // Use 1inch's swap API endpoint to get data to send

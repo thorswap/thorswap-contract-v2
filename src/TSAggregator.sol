@@ -4,6 +4,7 @@ pragma solidity 0.8.10;
 import { SafeTransferLib } from "../lib/SafeTransferLib.sol";
 import { ReentrancyGuard } from "../lib/ReentrancyGuard.sol";
 import { Owners } from "./Owners.sol";
+import { TSAggregatorTokenTransferProxy } from './TSAggregatorTokenTransferProxy.sol';
 
 abstract contract TSAggregator is Owners, ReentrancyGuard {
     using SafeTransferLib for address;
@@ -12,9 +13,11 @@ abstract contract TSAggregator is Owners, ReentrancyGuard {
 
     uint256 public fee;
     address public feeRecipient;
+    TSAggregatorTokenTransferProxy public tokenTransferProxy;
 
-    constructor() {
+    constructor(address _tokenTransferProxy) {
         _setOwner(msg.sender, true);
+        tokenTransferProxy = TSAggregatorTokenTransferProxy(_tokenTransferProxy);
     }
 
     // Needed for the swap router to be able to send back ETH
