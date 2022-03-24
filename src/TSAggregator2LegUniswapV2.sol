@@ -6,7 +6,7 @@ import { TSAggregator } from "./TSAggregator.sol";
 import { IThorchainRouter } from "./interfaces/IThorchainRouter.sol";
 import { IUniswapRouterV2 } from "./interfaces/IUniswapRouterV2.sol";
 
-contract TSAggregatorUniswapV2 is TSAggregator {
+contract TSAggregator2LegUniswapV2 is TSAggregator {
     using SafeTransferLib for address;
 
     address public weth;

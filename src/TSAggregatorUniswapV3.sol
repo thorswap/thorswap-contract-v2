@@ -15,7 +15,7 @@ contract TSAggregatorUniswapV3 is TSAggregator {
     IUniswapRouterV3 public swapRouter;
 
     constructor(
-        address _ttp, uint24 _poolFee, address _weth, address _swapRouter
+        address _ttp, address _weth, address _swapRouter, uint24 _poolFee
     ) TSAggregator(_ttp) {
         weth = IWETH9(_weth);
         poolFee = _poolFee;

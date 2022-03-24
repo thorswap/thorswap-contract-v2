@@ -29,7 +29,7 @@ contract TSAggregatorUniswapV3Test is DSTest {
         weth = new TestERC20();
         token = new TestERC20();
         ttp = new TSAggregatorTokenTransferProxy();
-        agg = new TSAggregatorUniswapV3(address(ttp), 3000, address(weth), address(this));
+        agg = new TSAggregatorUniswapV3(address(ttp), address(weth), address(this), 3000);
         ttp.setOwner(address(agg), true);
         agg.setFee(500, vm.addr(2));
     }
