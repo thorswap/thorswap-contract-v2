@@ -22,7 +22,7 @@ contract TSAggregatorGenericTest is DSTest {
         token = new TestERC20();
         ttp = new TSAggregatorTokenTransferProxy();
         agg = new TSAggregatorGeneric(address(ttp));
-        ttp.setOwner(address(agg), true);
+        ttp.setAuthorized(address(agg), true);
         agg.setFee(500, vm.addr(2));
     }
 
