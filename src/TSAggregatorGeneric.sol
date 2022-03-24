@@ -28,6 +28,7 @@ contract TSAggregatorGeneric is TSAggregator {
         bytes calldata data,
         uint deadline
     ) public nonReentrant {
+        require(router != address(tokenTransferProxy), "no calling ttp");
         tokenTransferProxy.transferTokens(token, msg.sender, address(this), amount);
         token.safeApprove(address(router), 0); // USDT quirk
         token.safeApprove(address(router), amount);

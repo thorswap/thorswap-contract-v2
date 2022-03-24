@@ -7,29 +7,11 @@ import { Owners } from "./Owners.sol";
 contract TSAggregatorTokenTransferProxy is Owners {
     using SafeTransferLib for address;
 
-    mapping(address => bool) public authorized;
-
-    event AuthorizedSet(address indexed owner, bool active);
-
     constructor() {
         _setOwner(msg.sender, true);
     }
 
-    modifier isAuthorized() {
-        require(authorized[msg.sender], "Unauthorized");
-        _;
-    }
-
-    function _setAuthorized(address user, bool active) internal {
-      authorized[user] = active;
-      emit AuthorizedSet(user, active);
-    }
-
-    function setAuthorized(address user, bool active) public isOwner {
-      _setAuthorized(user, active);
-    }
-
-    function transferTokens(address token, address from, address to, uint256 amount) external isAuthorized {
+    function transferTokens(address token, address from, address to, uint256 amount) external isOwner {
         require(from == tx.origin || _isContract(from), "Invalid from address");
         token.safeTransferFrom(from, to, amount);
     }
