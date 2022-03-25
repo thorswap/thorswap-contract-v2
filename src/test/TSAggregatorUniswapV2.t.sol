@@ -3,6 +3,7 @@ pragma solidity 0.8.10;
 
 import { DSTest } from "../../lib/DSTest.sol";
 import { TestERC20 } from "./TestERC20.sol";
+import { TSAggregatorTokenTransferProxy } from "../TSAggregatorTokenTransferProxy.sol";
 import { TSAggregatorUniswapV2 } from "../TSAggregatorUniswapV2.sol";
 
 contract TSAggregatorUniswapV2Test is DSTest {
@@ -21,12 +22,15 @@ contract TSAggregatorUniswapV2Test is DSTest {
 
     TestERC20 weth;
     TestERC20 token;
+    TSAggregatorTokenTransferProxy ttp;
     TSAggregatorUniswapV2 agg;
 
     function setUp() public {
         weth = new TestERC20();
         token = new TestERC20();
-        agg = new TSAggregatorUniswapV2(address(weth), address(this));
+        ttp = new TSAggregatorTokenTransferProxy();
+        agg = new TSAggregatorUniswapV2(address(ttp), address(weth), address(this));
+        ttp.setOwner(address(agg), true);
         agg.setFee(500, vm.addr(2));
     }
 
@@ -64,7 +68,7 @@ contract TSAggregatorUniswapV2Test is DSTest {
 
     function testSwapIn() public {
         token.mintTo(address(this), 50e18);
-        token.approve(address(agg), 50e18);
+        token.approve(address(ttp), 50e18);
         agg.swapIn(
             address(this),
             vm.addr(1),

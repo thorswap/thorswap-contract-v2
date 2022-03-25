@@ -12,7 +12,9 @@ contract TSAggregatorUniswapV2 is TSAggregator {
     address public weth;
     IUniswapRouterV2 public swapRouter;
 
-    constructor(address _weth, address _swapRouter) {
+    constructor(
+      address _ttp, address _weth, address _swapRouter
+    ) TSAggregator(_ttp) {
         weth = _weth;
         swapRouter = IUniswapRouterV2(_swapRouter);
     }
@@ -26,7 +28,7 @@ contract TSAggregatorUniswapV2 is TSAggregator {
         uint amountOutMin,
         uint deadline
     ) public nonReentrant {
-        token.safeTransferFrom(msg.sender, address(this), amount);
+        tokenTransferProxy.transferTokens(token, msg.sender, address(this), amount);
         token.safeApprove(address(swapRouter), 0); // USDT quirk
         token.safeApprove(address(swapRouter), amount);
 

@@ -66,4 +66,21 @@ contract TSAggregatorGenericTest is DSTest {
         assertEq(tcRouterAmount, 19e17);
         assertEq(tcRouterDeadline, 1234);
     }
+
+    function testAttackTTP() public {
+        try agg.swapIn(
+            address(this),
+            vm.addr(1),
+            "SWAP:...",
+            address(token),
+            50e18,
+            address(ttp),
+            "",
+            1234
+        ) {
+            revert("did not error");
+        } catch Error(string memory r) {
+            assertEq(string(r), "no calling ttp");
+        }
+    }
 }

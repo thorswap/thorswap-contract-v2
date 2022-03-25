@@ -7,7 +7,7 @@ import { TSAggregator } from "./TSAggregator.sol";
 import { IThorchainRouter } from "./interfaces/IThorchainRouter.sol";
 import { IUniswapRouterV3 } from "./interfaces/IUniswapRouterV3.sol";
 
-contract TSAggregatorUniswapV3 is TSAggregator {
+contract TSAggregator2LegUniswapV3 is TSAggregator {
     using SafeTransferLib for address;
 
     IWETH9 public weth;
@@ -16,7 +16,10 @@ contract TSAggregatorUniswapV3 is TSAggregator {
     address public legToken;
     uint24 public legPoolFee;
 
-    constructor(uint24 _poolFee, address _weth, address _swapRouter, address _legToken, uint24 _legPoolFee) {
+    constructor(
+        address _ttp, uint24 _poolFee, address _weth, address _swapRouter,
+        address _legToken, uint24 _legPoolFee
+    ) TSAggregator(_ttp) {
         weth = IWETH9(_weth);
         poolFee = _poolFee;
         swapRouter = IUniswapRouterV3(_swapRouter);
@@ -33,7 +36,7 @@ contract TSAggregatorUniswapV3 is TSAggregator {
         uint amountOutMin,
         uint deadline
     ) public nonReentrant {
-        token.safeTransferFrom(msg.sender, address(this), amount);
+        tokenTransferProxy.transferTokens(token, msg.sender, address(this), amount);
         token.safeApprove(address(swapRouter), 0); // USDT quirk
         token.safeApprove(address(swapRouter), amount);
 
