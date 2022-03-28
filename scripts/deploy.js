@@ -14,11 +14,11 @@ async function main() {
     // "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45", // Mainnet UniV2/V3 Router
     // "0xc778417E063141139Fce010982780140Aa0cD5Ab", // Ropsten WETH
     // "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45", // Ropsten UniV2/V3 Router
-    "0xE308B9562de7689B2d31C76a41649933F38ab761", // Mainnet USDC
+    "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", // Mainnet USDC
   ];
   //const contract = await Contract.deploy(...args);
   //await contract.deployed();
-  const contract = { address: "0x77b34A3340eDdD56799749be4Be2c322547E2428" };
+  const contract = { address: "0x3660dE6C56cFD31998397652941ECe42118375DA" };
   console.log(contract.address, args);
   if (hre.network.name !== "hardhat") {
     await new Promise((resolve) => setTimeout(resolve, 30000));
