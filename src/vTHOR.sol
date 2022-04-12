@@ -12,24 +12,18 @@ contract vTHOR is IERC4626, ERC20Vote, ReentrancyGuard {
     using SafeTransferLib for address;
     using FixedPointMathLib for uint256;
 
-    event Deposit(address indexed caller, address indexed owner, uint256 assets, uint256 shares);
+    IERC20 public _asset;
 
-    event Withdraw(
-        address indexed caller,
-        address indexed receiver,
-        address indexed owner,
-        uint256 assets,
-        uint256 shares
-    );
+    constructor(IERC20 asset_) ERC20Vote("vTHOR", "vTHOR", 18) {
+        _asset = asset_;
+    }
 
-    IERC20 public asset;
-
-    constructor(IERC20 _asset) ERC20Vote("vTHOR", "vTHOR", 18) {
-        asset = _asset;
+    function asset() public view returns (address) {
+        return address(_asset);
     }
 
     function totalAssets() public view returns (uint256) {
-        return asset.balanceOf(address(this));
+        return _asset.balanceOf(address(this));
     }
 
     function convertToShares(uint256 assets) public view returns (uint256) {
@@ -80,7 +74,7 @@ contract vTHOR is IERC4626, ERC20Vote, ReentrancyGuard {
         // Check for rounding error since we round down in previewDeposit.
         require((shares = previewDeposit(assets)) != 0, "ZERO_SHARES");
         // Need to transfer before minting or ERC777s could reenter.
-        address(asset).safeTransferFrom(msg.sender, address(this), assets);
+        address(_asset).safeTransferFrom(msg.sender, address(this), assets);
         _mint(receiver, shares);
         emit Deposit(msg.sender, receiver, assets, shares);
     }
@@ -88,7 +82,7 @@ contract vTHOR is IERC4626, ERC20Vote, ReentrancyGuard {
     function mint(uint256 shares, address receiver) public returns (uint256 assets) {
         assets = previewMint(shares); // No need to check for rounding error, previewMint rounds up.
         // Need to transfer before minting or ERC777s could reenter.
-        address(asset).safeTransferFrom(msg.sender, address(this), assets);
+        address(_asset).safeTransferFrom(msg.sender, address(this), assets);
         _mint(receiver, shares);
         emit Deposit(msg.sender, receiver, assets, shares);
     }
@@ -105,7 +99,7 @@ contract vTHOR is IERC4626, ERC20Vote, ReentrancyGuard {
         }
         _burn(owner, shares);
         emit Withdraw(msg.sender, receiver, owner, assets, shares);
-        address(asset).safeTransfer(receiver, assets);
+        address(_asset).safeTransfer(receiver, assets);
     }
 
     function redeem(
@@ -121,6 +115,6 @@ contract vTHOR is IERC4626, ERC20Vote, ReentrancyGuard {
         require((assets = previewRedeem(shares)) != 0, "ZERO_ASSETS");
         _burn(owner, shares);
         emit Withdraw(msg.sender, receiver, owner, assets, shares);
-        address(asset).safeTransfer(receiver, assets);
+        address(_asset).safeTransfer(receiver, assets);
     }
 }
