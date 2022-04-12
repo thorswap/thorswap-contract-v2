@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 
 interface Vm {
     function addr(uint256) external returns (address);
