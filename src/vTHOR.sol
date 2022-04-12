@@ -3,11 +3,12 @@ pragma solidity 0.8.10;
 
 import { ERC20Vote } from "../lib/ERC20Vote.sol";
 import { IERC20 } from "./interfaces/IERC20.sol";
+import { IERC4626 } from "./interfaces/IERC4626.sol";
 import { SafeTransferLib } from "../lib/SafeTransferLib.sol";
 import { FixedPointMathLib } from "../lib/FixedPointMathLib.sol";
 import { ReentrancyGuard } from "../lib/ReentrancyGuard.sol";
 
-contract vTHOR is ERC20Vote, ReentrancyGuard {
+contract vTHOR is IERC4626, ERC20Vote, ReentrancyGuard {
     using SafeTransferLib for address;
     using FixedPointMathLib for uint256;
 
@@ -74,27 +75,6 @@ contract vTHOR is ERC20Vote, ReentrancyGuard {
     function maxRedeem(address owner) public view returns (uint256) {
         return balanceOf[owner];
     }
-
-    /*
-    function deposit(uint256 amount) public nonReentrant {
-        uint256 totalShares = totalSupply;
-        uint256 totalDeposits = IERC20(asset).balanceOf(address(this));
-        if (totalShares == 0 || totalDeposits == 0) {
-            _mint(msg.sender, amount);
-        } else {
-            _mint(msg.sender, (amount * totalShares) / totalDeposits);
-        }
-        address(asset).safeTransferFrom(msg.sender, address(this), amount);
-    }
-
-    function withdraw(uint256 share) public nonReentrant {
-        uint256 totalShares = totalSupply;
-        uint256 totalDeposits = IERC20(asset).balanceOf(address(this));
-        uint256 amount = (share * totalDeposits) / totalShares;
-        _burn(msg.sender, share);
-        address(asset).safeTransfer(msg.sender, amount);
-    }
-    */
 
     function deposit(uint256 assets, address receiver) public returns (uint256 shares) {
         // Check for rounding error since we round down in previewDeposit.
