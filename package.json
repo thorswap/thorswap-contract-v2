@@ -11,15 +11,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kiasaki/thorswap-aggregator.git"
+    "url": "git+https://github.com/thorswap/thorswap-contract-v2.git"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/kiasaki/thorswap-aggregator/issues"
+    "url": "https://github.com/thorswap/thorswap-contract-v2/issues"
   },
-  "homepage": "https://github.com/kiasaki/thorswap-aggregator#readme",
+  "homepage": "https://github.com/thorswap/thorswap-contract-v2#readme",
   "dependencies": {
     "@nomiclabs/hardhat-ethers": "2.0.4",
     "@nomiclabs/hardhat-etherscan": "3.0.0",
