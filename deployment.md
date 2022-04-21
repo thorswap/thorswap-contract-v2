@@ -7,3 +7,4 @@
 - TSAggregatorUniswapV3 3000 https://etherscan.io/address/0x96ab925EFb957069507894CD941F40734f0288ad
 - TSAggregatorUniswapV3 10000 https://etherscan.io/address/0xE308B9562de7689B2d31C76a41649933F38ab761
 - TSAggregator2LegUniswapV2 USDC https://etherscan.io/address/0x3660dE6C56cFD31998397652941ECe42118375DA
+- vTHOR https://etherscan.io/address/0x815C23eCA83261b6Ec689b60Cc4a58b54BC24D8D
