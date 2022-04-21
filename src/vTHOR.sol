@@ -70,7 +70,7 @@ contract vTHOR is IERC4626, ERC20Vote, ReentrancyGuard {
         return balanceOf[owner];
     }
 
-    function deposit(uint256 assets, address receiver) public returns (uint256 shares) {
+    function deposit(uint256 assets, address receiver) public nonReentrant returns (uint256 shares) {
         // Check for rounding error since we round down in previewDeposit.
         require((shares = previewDeposit(assets)) != 0, "ZERO_SHARES");
         // Need to transfer before minting or ERC777s could reenter.
@@ -79,7 +79,7 @@ contract vTHOR is IERC4626, ERC20Vote, ReentrancyGuard {
         emit Deposit(msg.sender, receiver, assets, shares);
     }
 
-    function mint(uint256 shares, address receiver) public returns (uint256 assets) {
+    function mint(uint256 shares, address receiver) public nonReentrant returns (uint256 assets) {
         assets = previewMint(shares); // No need to check for rounding error, previewMint rounds up.
         // Need to transfer before minting or ERC777s could reenter.
         address(_asset).safeTransferFrom(msg.sender, address(this), assets);
@@ -91,7 +91,7 @@ contract vTHOR is IERC4626, ERC20Vote, ReentrancyGuard {
         uint256 assets,
         address receiver,
         address owner
-    ) public returns (uint256 shares) {
+    ) public nonReentrant returns (uint256 shares) {
         shares = previewWithdraw(assets); // No need to check for rounding error, previewWithdraw rounds up.
         if (msg.sender != owner) {
             uint256 allowed = allowance[owner][msg.sender]; // Saves gas for limited approvals.
@@ -106,7 +106,7 @@ contract vTHOR is IERC4626, ERC20Vote, ReentrancyGuard {
         uint256 shares,
         address receiver,
         address owner
-    ) public returns (uint256 assets) {
+    ) public nonReentrant returns (uint256 assets) {
         if (msg.sender != owner) {
             uint256 allowed = allowance[owner][msg.sender]; // Saves gas for limited approvals.
             if (allowed != type(uint256).max) allowance[owner][msg.sender] = allowed - shares;

@@ -11,6 +11,18 @@ THORChain in either direction.
 For now those aggregator contracts are deployed on the Ethereum mainnet but
 could be deployed on any EVM compatible chain that THORChain supports.
 
+### Installing forge for running tests
+
+```
+curl -L https://foundry.paradigm.xyz | bash
+foundryup
+```
+
+### Installing hardhat for running deployment
+
+```
+npm i
+```
 
 ### SwapIn (ETH/EVM to TC)
 

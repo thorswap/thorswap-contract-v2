@@ -16,7 +16,7 @@ abstract contract Owners {
       emit OwnerSet(owner, active);
     }
 
-    function setOwner(address owner, bool active) public virtual isOwner {
+    function setOwner(address owner, bool active) external virtual isOwner {
       _setOwner(owner, active);
     }
 }

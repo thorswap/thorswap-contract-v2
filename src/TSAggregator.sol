@@ -23,7 +23,7 @@ abstract contract TSAggregator is Owners, ReentrancyGuard {
     // Needed for the swap router to be able to send back ETH
     receive() external payable {}
 
-    function setFee(uint256 _fee, address _feeRecipient) public isOwner {
+    function setFee(uint256 _fee, address _feeRecipient) external isOwner {
         require(_fee <= 1000, "fee can not be more than 10%");
         fee = _fee;
         feeRecipient = _feeRecipient;
