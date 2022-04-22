@@ -7,11 +7,9 @@ async function main() {
   const signer = await ethers.getSigner();
   const gasPrice = (await signer.getGasPrice()).mul(150).div(100);
   const Contract = await hre.ethers.getContractFactory("TSAggregatorUniswapV2");
-  const contract = Contract.attach(
-    "0x1e181df53d07b698c6a58ca6308ab5d827f116e1"
-  );
-  const apiUrl =
-    "https://stagenet-midgard.ninerealms.com/v2/thorchain/inbound_addresses";
+  const contract = Contract.attach("0x7C38b8B2efF28511ECc14a621e263857Fb5771d3");
+  const apiUrl = "https://midgard.ninerealms.com/v2/thorchain/inbound_addresses";
+  // const apiUrl = "https://stagenet-midgard.ninerealms.com/v2/thorchain/inbound_addresses";
   const ethChain = (await httpRequest(apiUrl)).find((c) => c.chain === "ETH");
   const router = ethChain.router;
   const vault = ethChain.address;
