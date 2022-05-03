@@ -9,3 +9,4 @@
 - TSAggregator2LegUniswapV2 USDC https://etherscan.io/address/0x3660dE6C56cFD31998397652941ECe42118375DA
 - TSAggregatorUniswapV2 SushiSwap https://etherscan.io/address/0x0F2CD5dF82959e00BE7AfeeF8245900FC4414199
 - vTHOR https://etherscan.io/address/0x815C23eCA83261b6Ec689b60Cc4a58b54BC24D8D
+- RewardsForwarder https://etherscan.io/address/0x8f631816043c8e8Cad0C4c602bFe7Bff1B22b182

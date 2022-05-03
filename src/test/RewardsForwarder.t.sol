@@ -13,7 +13,7 @@ contract vTHORTest is DSTest {
     function setUp() public {
         thor = new TestERC20();
         thor.mintTo(address(this), 100e18);
-        rf = new RewardsForwarder(5, address(thor), vm.addr(2), vm.addr(1));
+        rf = new RewardsForwarder(5, address(thor), vm.addr(2), vm.addr(1), address(this));
     }
 
     function testSendRewards() public {

@@ -18,8 +18,8 @@ contract RewardsForwarder is Owners, ReentrancyGuard {
     address public target;
     address public operator;
 
-    constructor(uint256 _rewardPerBlock, address _token, address _target, address _operator) {
-        _setOwner(msg.sender, true);
+    constructor(uint256 _rewardPerBlock, address _token, address _target, address _operator, address _initialOwner) {
+        _setOwner(_initialOwner, true);
         lastBlock = block.number;
         rewardPerBlock = _rewardPerBlock;
         token = _token;

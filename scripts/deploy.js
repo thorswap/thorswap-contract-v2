@@ -16,10 +16,11 @@ async function main() {
     // "0xc778417E063141139Fce010982780140Aa0cD5Ab", // Ropsten WETH
     // "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45", // Ropsten UniV2/V3 Router
     // "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", // Mainnet USDC
-    ethers.utils.parseUnits('0.00005'),
+    ethers.utils.parseUnits("0"),
     "0xa5f2211B9b8170F694421f2046281775E8468044", // Mainnet THOR
     "0x815C23eCA83261b6Ec689b60Cc4a58b54BC24D8D", // Mainnet vTHOR
-    signer.address, // Defender Wallet
+    "0x5c48a72787987536065cd776dc92a756e271f512", // Defender Wallet
+    "0x8F692D7abC6cDf567571276f76112Ec9A01DE309", // Multisig
   ];
   const contract = await Contract.deploy(...args);
   await contract.deployed();
