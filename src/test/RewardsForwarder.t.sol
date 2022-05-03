@@ -34,9 +34,13 @@ contract vTHORTest is DSTest {
         assertEq(rf.lastBlock(), newBlock);
     }
 
-    function testSetBlock() public {
-        rf.setBlock(123, 567);
+    function testSetLastBlock() public {
+        rf.setLastBlock(123);
         assertEq(rf.lastBlock(), 123);
+    }
+
+    function testSetRewardPerBlock() public {
+        rf.setRewardPerBlock(567);
         assertEq(rf.rewardPerBlock(), 567);
     }
 

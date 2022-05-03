@@ -8,7 +8,8 @@ import { Owners } from "./Owners.sol";
 contract RewardsForwarder is Owners, ReentrancyGuard {
     using SafeTransferLib for address;
 
-    event BlockSet(uint256 lastBlock, uint256 rewardPerBlock);
+    event LastBlockSet(uint256 lastBlock);
+    event RewardPerBlockSet(uint256 rewardPerBlock);
     event AddressesSet(address token, address target, address operator);
 
     uint256 public lastBlock;
@@ -37,10 +38,14 @@ contract RewardsForwarder is Owners, ReentrancyGuard {
         token.safeTransfer(target, amount);
     }
 
-    function setBlock(uint256 _lastBlock, uint256 _rewardPerBlock) external isOwner {
+    function setLastBlock(uint256 _lastBlock) external isOwner {
         lastBlock = _lastBlock;
+        emit LastBlockSet(_lastBlock);
+    }
+
+    function setRewardPerBlock(uint256 _rewardPerBlock) external isOwner {
         rewardPerBlock = _rewardPerBlock;
-        emit BlockSet(_lastBlock, _rewardPerBlock);
+        emit RewardPerBlockSet(_rewardPerBlock);
     }
 
     function setAddresses(address _token, address _target, address _operator) external isOwner {
