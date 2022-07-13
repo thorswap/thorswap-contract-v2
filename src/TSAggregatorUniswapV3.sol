@@ -60,6 +60,7 @@ contract TSAggregatorUniswapV3 is TSAggregator {
     function swapOut(address token, address to, uint256 amountOutMin) public payable nonReentrant {
         uint256 amount = skimFee(msg.value);
         weth.deposit{value: amount}();
+        address(weth).safeApprove(address(swapRouter), amount);
         swapRouter.exactInputSingle(IUniswapRouterV3.ExactInputSingleParams({
             tokenIn: address(weth),
             tokenOut: token,

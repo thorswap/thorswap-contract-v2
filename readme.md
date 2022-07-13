@@ -24,6 +24,18 @@ foundryup
 npm i
 ```
 
+### Running tests
+
+```
+forge test
+```
+
+### Deploying a contract
+
+```
+./node_modules/.bin/hardhat run scripts/deploy.js
+```
+
 ### SwapIn (ETH/EVM to TC)
 
 To swap tokens from Ethereum to THORChain we essentially need to convert the

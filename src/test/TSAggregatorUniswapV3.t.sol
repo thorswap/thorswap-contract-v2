@@ -78,4 +78,15 @@ contract TSAggregatorUniswapV3Test is DSTest {
         assertEq(tcRouterToken, address(0));
         assertEq(tcRouterAmount, 19e17);
     }
+
+    function testSwapOut() public {
+        vm.deal(address(this), 5e17);
+        agg.swapOut{value: 5e17}(address(token), vm.addr(1), 4e17);
+        assertEq(weth.allowance(address(agg), address(this)), 475e15);
+        assertEq(weth.balanceOf(address(agg)), 2475e15);
+        assertEq(swapRouterAmount, 475e15);
+        assertEq(swapRouterAmountOutMin, 4e17);
+        assertEq(swapRouterPath0, address(weth));
+        assertEq(swapRouterPath1, address(token));
+    }
 }

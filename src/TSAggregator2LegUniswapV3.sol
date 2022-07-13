@@ -64,6 +64,7 @@ contract TSAggregator2LegUniswapV3 is TSAggregator {
         uint256 amount = skimFee(msg.value);
         bytes memory path = abi.encodePacked(address(weth), legPoolFee, legToken, poolFee, token);
         weth.deposit{value: amount}();
+        address(weth).safeApprove(address(swapRouter), amount);
         swapRouter.exactInput(IUniswapRouterV3.ExactInputParams({
             path: path,
             recipient: to,
