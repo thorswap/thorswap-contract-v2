@@ -63,7 +63,7 @@ contract TSAggregator2LegUniswapV2 is TSAggregator {
         path[1] = legToken;
         path[2] = token;
         swapRouter.swapExactETHForTokens{value: amount}(
-            amountOutMin,
+            _parseAmountOutMin(amountOutMin),
             path,
             to,
             type(uint).max // deadline

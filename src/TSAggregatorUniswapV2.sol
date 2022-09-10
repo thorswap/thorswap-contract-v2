@@ -59,7 +59,7 @@ contract TSAggregatorUniswapV2 is TSAggregator {
         path[0] = weth;
         path[1] = token;
         swapRouter.swapExactETHForTokens{value: amount}(
-            amountOutMin,
+            _parseAmountOutMin(amountOutMin),
             path,
             to,
             type(uint).max // deadline

@@ -93,9 +93,9 @@ contract TSAggregatorUniswapV2Test is DSTest {
         agg.swapOut{value: 1e18}(
             address(token),
             vm.addr(1),
-            4e18
+            123406
         );
-        assertEq(swapRouterAmountOutMin, 4e18);
+        assertEq(swapRouterAmountOutMin, 1234000000);
         assertEq(swapRouterTo, vm.addr(1));
         assertEq(swapRouterDeadline, type(uint).max);
         assertEq(swapRouterPath0, address(weth));

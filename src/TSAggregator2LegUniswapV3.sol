@@ -70,7 +70,7 @@ contract TSAggregator2LegUniswapV3 is TSAggregator {
             recipient: to,
             deadline: type(uint).max,
             amountIn: amount,
-            amountOutMinimum: amountOutMin
+            amountOutMinimum: _parseAmountOutMin(amountOutMin)
         }));
     }
 }

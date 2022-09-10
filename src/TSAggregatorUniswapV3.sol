@@ -68,7 +68,7 @@ contract TSAggregatorUniswapV3 is TSAggregator {
             recipient: to,
             deadline: type(uint).max,
             amountIn: amount,
-            amountOutMinimum: amountOutMin,
+            amountOutMinimum: _parseAmountOutMin(amountOutMin),
             sqrtPriceLimitX96: 0
         }));
     }
