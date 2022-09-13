@@ -33,6 +33,6 @@ module.exports = {
     timeout: 40000,
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
+    apiKey: process.env.THORSWAP_ETHERSCAN_API_KEY,
   },
 };

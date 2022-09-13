@@ -10,3 +10,10 @@
 - TSAggregatorUniswapV2 SushiSwap https://etherscan.io/address/0x0F2CD5dF82959e00BE7AfeeF8245900FC4414199
 - vTHOR https://etherscan.io/address/0x815C23eCA83261b6Ec689b60Cc4a58b54BC24D8D
 - RewardsForwarder https://etherscan.io/address/0x8f631816043c8e8Cad0C4c602bFe7Bff1B22b182
+- TSAggregatorUniswapV2 (w/ short outAmountMin parsing) https://etherscan.io/address/0x86904eb2b3c743400d03f929f2246efa80b91215
+- TSAggregatorUniswapV2 (w/ short outAmountMin parsing) SushiSwap https://etherscan.io/address/0xbf365e79aa44a2164da135100c57fdb6635ae870
+- TSAggregatorUniswapV3 (w/ short outAmountMin parsing) 100 https://etherscan.io/address/0xbd68cbe6c247e2c3a0e36b8f0e24964914f26ee8
+- TSAggregatorUniswapV3 (w/ short outAmountMin parsing) 500 https://etherscan.io/address/0xe4ddca21881bac219af7f217703db0475d2a9f02
+- TSAggregatorUniswapV3 (w/ short outAmountMin parsing) 3000 https://etherscan.io/address/0x11733abf0cdb43298f7e949c930188451a9a9ef2
+- TSAggregatorUniswapV3 (w/ short outAmountMin parsing) 10000 https://etherscan.io/address/0xb33874810e5395eb49d8bd7e912631db115d5a03
+

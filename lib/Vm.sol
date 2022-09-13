@@ -13,4 +13,6 @@ interface Vm {
     function mockCall(address,bytes calldata,bytes calldata) external;
     function clearMockedCalls() external;
     function expectCall(address,bytes calldata) external;
+    function startBroadcast() external;
+    function stopBroadcast() external;
 }
