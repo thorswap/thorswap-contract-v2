@@ -4,6 +4,7 @@ pragma solidity 0.8.10;
 import {DSTest} from "../../lib/DSTest.sol";
 import {TSAggregatorUniswapV2} from "../TSAggregatorUniswapV2.sol";
 import {TSAggregatorUniswapV3} from "../TSAggregatorUniswapV3.sol";
+import {TSAggregatorTokenTransferProxy} from "../TSAggregatorTokenTransferProxy.sol";
 
 contract Deploy is DSTest {
     function run() external {
@@ -16,6 +17,14 @@ contract Deploy is DSTest {
         uint256 fee = 30;
         address feeRecipient = 0x7D8911eB1C72F0Ba29302bE30301B75Cec81F622;
         vm.startBroadcast();
+        TSAggregatorTokenTransferProxy t = TSAggregatorTokenTransferProxy(ttp);
+        t.setOwner(0x86904Eb2b3c743400D03f929F2246EfA80B91215, true);
+        t.setOwner(0xbf365e79aA44A2164DA135100C57FDB6635ae870, true);
+        t.setOwner(0xBd68cBe6c247e2c3a0e36B8F0e24964914f26Ee8, true);
+        t.setOwner(0xE4ddca21881baC219AF7F217703Db0475D2a9F02, true);
+        t.setOwner(0x11733abf0cdb43298f7e949c930188451a9A9Ef2, true);
+        t.setOwner(0xB33874810E5395EB49d8Bd7E912631dB115D5a03, true);
+        /*
         TSAggregatorUniswapV2 av2 = new TSAggregatorUniswapV2(ttp, weth, routerv2);
         TSAggregatorUniswapV2 ass = new TSAggregatorUniswapV2(ttp, weth, routersushi);
         TSAggregatorUniswapV3 av3100 = new TSAggregatorUniswapV3(ttp, weth, routerv3, 100);
@@ -34,6 +43,7 @@ contract Deploy is DSTest {
         av3500.setFee(fee, feeRecipient);
         av33000.setFee(fee, feeRecipient);
         av310000.setFee(fee, feeRecipient);
+        */
         vm.stopBroadcast();
     }
 }
