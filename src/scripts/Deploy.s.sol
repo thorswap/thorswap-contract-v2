@@ -2,12 +2,13 @@
 pragma solidity 0.8.10;
 
 import {DSTest} from "../../lib/DSTest.sol";
-import {TSAggregatorUniswapV2} from "../TSAggregatorUniswapV2.sol";
-import {TSAggregatorUniswapV3} from "../TSAggregatorUniswapV3.sol";
+import {TSAggregatorUniswapV2AVAX} from "../TSAggregatorUniswapV2AVAX.sol";
 import {TSAggregatorTokenTransferProxy} from "../TSAggregatorTokenTransferProxy.sol";
 
 contract Deploy is DSTest {
     function run() external {
+        /*
+        // Ethereum Mainnet
         address ttp = 0xF892Fef9dA200d9E84c9b0647ecFF0F34633aBe8;
         address weth = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
         address routerv2 = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
@@ -16,34 +17,25 @@ contract Deploy is DSTest {
         address ms = 0x8F692D7abC6cDf567571276f76112Ec9A01DE309;
         uint256 fee = 30;
         address feeRecipient = 0x7D8911eB1C72F0Ba29302bE30301B75Cec81F622;
-        vm.startBroadcast();
         TSAggregatorTokenTransferProxy t = TSAggregatorTokenTransferProxy(ttp);
-        t.setOwner(0x86904Eb2b3c743400D03f929F2246EfA80B91215, true);
-        t.setOwner(0xbf365e79aA44A2164DA135100C57FDB6635ae870, true);
-        t.setOwner(0xBd68cBe6c247e2c3a0e36B8F0e24964914f26Ee8, true);
-        t.setOwner(0xE4ddca21881baC219AF7F217703Db0475D2a9F02, true);
-        t.setOwner(0x11733abf0cdb43298f7e949c930188451a9A9Ef2, true);
-        t.setOwner(0xB33874810E5395EB49d8Bd7E912631dB115D5a03, true);
-        /*
-        TSAggregatorUniswapV2 av2 = new TSAggregatorUniswapV2(ttp, weth, routerv2);
-        TSAggregatorUniswapV2 ass = new TSAggregatorUniswapV2(ttp, weth, routersushi);
-        TSAggregatorUniswapV3 av3100 = new TSAggregatorUniswapV3(ttp, weth, routerv3, 100);
-        TSAggregatorUniswapV3 av3500 = new TSAggregatorUniswapV3(ttp, weth, routerv3, 500);
-        TSAggregatorUniswapV3 av33000 = new TSAggregatorUniswapV3(ttp, weth, routerv3, 3000);
-        TSAggregatorUniswapV3 av310000 = new TSAggregatorUniswapV3(ttp, weth, routerv3, 10000);
-        av2.setOwner(ms, true);
-        ass.setOwner(ms, true);
-        av3100.setOwner(ms, true);
-        av3500.setOwner(ms, true);
-        av33000.setOwner(ms, true);
-        av310000.setOwner(ms, true);
-        av2.setFee(fee, feeRecipient);
-        ass.setFee(fee, feeRecipient);
-        av3100.setFee(fee, feeRecipient);
-        av3500.setFee(fee, feeRecipient);
-        av33000.setFee(fee, feeRecipient);
-        av310000.setFee(fee, feeRecipient);
         */
+        // Avalanche Mainnet
+        address wavax = 0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7;
+        address ms = 0xC510D02ceE9eF8D9BFb880b212ff0e3A5C46a6BE;
+        uint256 fee = 30;
+        address feeRecipient = 0xC510D02ceE9eF8D9BFb880b212ff0e3A5C46a6BE;
+        vm.startBroadcast();
+        TSAggregatorTokenTransferProxy ttp = new TSAggregatorTokenTransferProxy();
+        TSAggregatorUniswapV2AVAX traderjoe = new TSAggregatorUniswapV2AVAX(address(ttp), wavax,
+            0x60aE616a2155Ee3d9A68541Ba4544862310933d4);
+        TSAggregatorUniswapV2AVAX pangolin = new TSAggregatorUniswapV2AVAX(address(ttp), wavax,
+            0xE54Ca86531e17Ef3616d22Ca28b0D458b6C89106);
+        traderjoe.setOwner(ms, true);
+        pangolin.setOwner(ms, true);
+        traderjoe.setFee(fee, feeRecipient);
+        pangolin.setFee(fee, feeRecipient);
+        ttp.setOwner(address(traderjoe), true);
+        ttp.setOwner(address(pangolin), true);
         vm.stopBroadcast();
     }
 }

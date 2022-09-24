@@ -17,3 +17,8 @@
 - TSAggregatorUniswapV3 (w/ short outAmountMin parsing) 3000 https://etherscan.io/address/0x11733abf0cdb43298f7e949c930188451a9a9ef2
 - TSAggregatorUniswapV3 (w/ short outAmountMin parsing) 10000 https://etherscan.io/address/0xb33874810e5395eb49d8bd7e912631db115d5a03
 
+## Avalanche Mainnet
+
+- TSAggregatorTokenTransferProxy https://snowtrace.io/address/0x69ba883Af416fF5501D54D5e27A1f497fBD97156
+- TSAggregatorUniswapV2AVAX TraderJoe https://snowtrace.io/address/0x3b7DbdD635B99cEa39D3d95Dbd0217F05e55B212
+- TSAggregatorUniswapV2AVAX Pangolin https://snowtrace.io/address/0x942c6dA485FD6cEf255853ef83a149d43A73F18a
