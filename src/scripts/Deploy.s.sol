@@ -2,7 +2,7 @@
 pragma solidity 0.8.10;
 
 import {DSTest} from "../../lib/DSTest.sol";
-import {TSAggregatorUniswapV2AVAX} from "../TSAggregatorUniswapV2AVAX.sol";
+import {TSAggregatorGeneric} from "../TSAggregatorGeneric.sol";
 import {TSAggregatorTokenTransferProxy} from "../TSAggregatorTokenTransferProxy.sol";
 
 contract Deploy is DSTest {
@@ -24,18 +24,12 @@ contract Deploy is DSTest {
         address ms = 0xC510D02ceE9eF8D9BFb880b212ff0e3A5C46a6BE;
         uint256 fee = 30;
         address feeRecipient = 0xC510D02ceE9eF8D9BFb880b212ff0e3A5C46a6BE;
+        address ttp = 0x69ba883Af416fF5501D54D5e27A1f497fBD97156;
         vm.startBroadcast();
-        TSAggregatorTokenTransferProxy ttp = new TSAggregatorTokenTransferProxy();
-        TSAggregatorUniswapV2AVAX traderjoe = new TSAggregatorUniswapV2AVAX(address(ttp), wavax,
-            0x60aE616a2155Ee3d9A68541Ba4544862310933d4);
-        TSAggregatorUniswapV2AVAX pangolin = new TSAggregatorUniswapV2AVAX(address(ttp), wavax,
-            0xE54Ca86531e17Ef3616d22Ca28b0D458b6C89106);
-        traderjoe.setOwner(ms, true);
-        pangolin.setOwner(ms, true);
-        traderjoe.setFee(fee, feeRecipient);
-        pangolin.setFee(fee, feeRecipient);
-        ttp.setOwner(address(traderjoe), true);
-        ttp.setOwner(address(pangolin), true);
+        TSAggregatorGeneric agg = new TSAggregatorGeneric(address(ttp));
+        agg.setOwner(ms, true);
+        agg.setFee(fee, feeRecipient);
+        TSAggregatorTokenTransferProxy(ttp).setOwner(address(agg), true);
         vm.stopBroadcast();
     }
 }

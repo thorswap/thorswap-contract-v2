@@ -20,5 +20,6 @@
 ## Avalanche Mainnet
 
 - TSAggregatorTokenTransferProxy https://snowtrace.io/address/0x69ba883Af416fF5501D54D5e27A1f497fBD97156
+- TSAggregatorGeneric https://snowtrace.io/address/0x7C38b8B2efF28511ECc14a621e263857Fb5771d3
 - TSAggregatorUniswapV2AVAX TraderJoe https://snowtrace.io/address/0x3b7DbdD635B99cEa39D3d95Dbd0217F05e55B212
 - TSAggregatorUniswapV2AVAX Pangolin https://snowtrace.io/address/0x942c6dA485FD6cEf255853ef83a149d43A73F18a
