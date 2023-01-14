@@ -14,12 +14,6 @@ contract TSAggregatorUniswapV3Test is DSTest {
     address swapRouterTo;
     uint swapRouterDeadline;
 
-    address tcRouterVault;
-    address tcRouterToken;
-    uint tcRouterAmount;
-    string tcRouterMemo;
-    uint tcRouterDeadline;
-
     TestERC20 weth;
     TestERC20 token;
     TSAggregatorTokenTransferProxy ttp;
@@ -47,21 +41,10 @@ contract TSAggregatorUniswapV3Test is DSTest {
         return 2e18;
     }
 
-    function depositWithExpiry(
-        address vault, address token, uint amount, string calldata memo, uint deadline
-    ) public payable {
-        tcRouterVault = vault;
-        tcRouterToken = token;
-        tcRouterAmount = amount;
-        tcRouterMemo = memo;
-        tcRouterDeadline = deadline;
-    }
-
     function testSwapIn() public {
         token.mintTo(address(this), 50e18);
         token.approve(address(ttp), 50e18);
         agg.swapIn(
-            address(this),
             vm.addr(1),
             "SWAP:...",
             address(token),
@@ -73,10 +56,7 @@ contract TSAggregatorUniswapV3Test is DSTest {
         assertEq(swapRouterAmountOutMin, 4e18);
         assertEq(swapRouterPath0, address(token));
         assertEq(swapRouterPath1, address(weth));
-        assertEq(tcRouterVault, vm.addr(1));
-        assertEq(tcRouterMemo, "SWAP:...");
-        assertEq(tcRouterToken, address(0));
-        assertEq(tcRouterAmount, 19e17);
+        assertEq(vm.addr(1).balance, 19e17);
     }
 
     function testSwapOut() public {

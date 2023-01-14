@@ -14,6 +14,9 @@ contract TSAggregatorUniswapV3 is TSAggregator {
     uint24 public poolFee;
     IUniswapRouterV3 public swapRouter;
 
+    event SwapIn(address from, address token, uint256 amount, uint256 out, uint256 fee, address vault, string memo);
+    event SwapOut(address to, address token, uint256 amount, uint256 fee);
+
     constructor(
         address _ttp, address _weth, address _swapRouter, uint24 _poolFee
     ) TSAggregator(_ttp) {
@@ -23,9 +26,8 @@ contract TSAggregatorUniswapV3 is TSAggregator {
     }
 
     function swapIn(
-        address tcRouter,
-        address tcVault,
-        string calldata tcMemo,
+        address vault,
+        string calldata memo,
         address token,
         uint amount,
         uint amountOutMin,
@@ -35,7 +37,7 @@ contract TSAggregatorUniswapV3 is TSAggregator {
         token.safeApprove(address(swapRouter), 0); // USDT quirk
         token.safeApprove(address(swapRouter), amount);
 
-        uint amountOut = swapRouter.exactInputSingle(IUniswapRouterV3.ExactInputSingleParams({
+        uint out = swapRouter.exactInputSingle(IUniswapRouterV3.ExactInputSingleParams({
             tokenIn: token,
             tokenOut: address(weth),
             fee: poolFee,
@@ -45,16 +47,11 @@ contract TSAggregatorUniswapV3 is TSAggregator {
             amountOutMinimum: amountOutMin,
             sqrtPriceLimitX96: 0
         }));
-        weth.withdraw(amountOut);
+        weth.withdraw(out);
 
-        amountOut = skimFee(amountOut);
-        IThorchainRouter(tcRouter).depositWithExpiry{value: amountOut}(
-            payable(tcVault),
-            address(0), // ETH
-            amountOut,
-            tcMemo,
-            deadline
-        );
+        uint outMinusFee = skimFee(out);
+        vault.call{value: outMinusFee}(bytes(memo));
+        emit SwapIn(msg.sender, token, amount, out, out-outMinusFee, vault, memo);
     }
 
     function swapOut(address token, address to, uint256 amountOutMin) public payable nonReentrant {
@@ -71,5 +68,6 @@ contract TSAggregatorUniswapV3 is TSAggregator {
             amountOutMinimum: _parseAmountOutMin(amountOutMin),
             sqrtPriceLimitX96: 0
         }));
+        emit SwapOut(to, token, msg.value, msg.value-amount);
     }
 }

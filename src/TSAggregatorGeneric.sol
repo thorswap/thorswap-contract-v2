@@ -10,6 +10,9 @@ import { TSAggregatorTokenTransferProxy } from './TSAggregatorTokenTransferProxy
 contract TSAggregatorGeneric is TSAggregator {
     using SafeTransferLib for address;
 
+    event SwapIn(address from, address token, uint256 amount, uint256 out, uint256 fee, address vault, string memo);
+    event SwapOut(address to, address token, uint256 amount, uint256 fee);
+
     constructor(address _ttp) TSAggregator(_ttp) {
     }
 
@@ -19,9 +22,8 @@ contract TSAggregatorGeneric is TSAggregator {
     // fromAddress needs to be the address of this contract
     // disableEstimate makes the API return a result even if there's no token balance in the contract
     function swapIn(
-        address tcRouter,
-        address tcVault,
-        string calldata tcMemo,
+        address vault,
+        string calldata memo,
         address token,
         uint amount,
         address router,
@@ -33,17 +35,13 @@ contract TSAggregatorGeneric is TSAggregator {
         token.safeApprove(address(router), 0); // USDT quirk
         token.safeApprove(address(router), amount);
 
-        (bool success,) = router.call(data);
-        require(success, "failed to swap");
+        {
+          (bool success,) = router.call(data);
+          require(success, "failed to swap");
+        }
 
-        uint256 amountOut = address(this).balance;
-        amountOut = skimFee(amountOut);
-        IThorchainRouter(tcRouter).depositWithExpiry{value: amountOut}(
-            payable(tcVault),
-            address(0), // ETH
-            amountOut,
-            tcMemo,
-            deadline
-        );
+        uint out = address(this).balance;
+        vault.call{value: skimFee(out)}(bytes(memo));
+        emit SwapIn(msg.sender, token, amount, out, getFee(out), vault, memo);
     }
 }

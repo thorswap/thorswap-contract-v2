@@ -31,12 +31,19 @@ abstract contract TSAggregator is Owners, ReentrancyGuard {
     }
 
     function skimFee(uint256 amount) internal returns (uint256) {
-        if (fee != 0 && feeRecipient != address(0)) {
-            uint256 feeAmount = (amount * fee) / 10000;
-            feeRecipient.safeTransferETH(feeAmount);
-            amount -= feeAmount;
+        uint256 amountFee = getFee(amount);
+        if (amountFee > 0) {
+            feeRecipient.safeTransferETH(amountFee);
+            amount -= amountFee;
         }
         return amount;
+    }
+
+    function getFee(uint256 amount) internal view returns (uint256) {
+        if (fee != 0 && feeRecipient != address(0)) {
+            return (amount * fee) / 10000;
+        }
+        return 0;
     }
 
     // Parse amountOutMin treating the last 2 digits as an exponent

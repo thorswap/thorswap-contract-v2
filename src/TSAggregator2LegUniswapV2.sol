@@ -13,6 +13,9 @@ contract TSAggregator2LegUniswapV2 is TSAggregator {
     IUniswapRouterV2 public swapRouter;
     address public legToken;
 
+    event SwapIn(address from, address token, uint256 amount, uint256 out, uint256 fee, address vault, string memo);
+    event SwapOut(address to, address token, uint256 amount, uint256 fee);
+
     constructor(
         address _ttp, address _weth, address _swapRouter, address _legToken
     ) TSAggregator(_ttp) {
@@ -22,9 +25,8 @@ contract TSAggregator2LegUniswapV2 is TSAggregator {
     }
 
     function swapIn(
-        address tcRouter,
-        address tcVault,
-        string calldata tcMemo,
+        address vault,
+        string calldata memo,
         address token,
         uint amount,
         uint amountOutMin,
@@ -46,14 +48,10 @@ contract TSAggregator2LegUniswapV2 is TSAggregator {
             deadline
         );
 
-        uint amountOut = skimFee(address(this).balance);
-        IThorchainRouter(tcRouter).depositWithExpiry{value: amountOut}(
-            payable(tcVault),
-            address(0), // ETH
-            amountOut,
-            tcMemo,
-            deadline
-        );
+        uint out = address(this).balance;
+        uint outMinusFee = skimFee(out);
+        vault.call{value: outMinusFee}(bytes(memo));
+        emit SwapIn(msg.sender, token, amount, out, out-outMinusFee, vault, memo);
     }
 
     function swapOut(address token, address to, uint256 amountOutMin) public payable nonReentrant {
@@ -68,6 +66,7 @@ contract TSAggregator2LegUniswapV2 is TSAggregator {
             to,
             type(uint).max // deadline
         );
+        emit SwapOut(to, token, msg.value, msg.value-amount);
     }
 }
 

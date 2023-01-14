@@ -16,6 +16,9 @@ contract TSAggregator2LegUniswapV3 is TSAggregator {
     address public legToken;
     uint24 public legPoolFee;
 
+    event SwapIn(address from, address token, uint256 amount, uint256 out, uint256 fee, address vault, string memo);
+    event SwapOut(address to, address token, uint256 amount, uint256 fee);
+
     constructor(
         address _ttp, uint24 _poolFee, address _weth, address _swapRouter,
         address _legToken, uint24 _legPoolFee
@@ -28,9 +31,8 @@ contract TSAggregator2LegUniswapV3 is TSAggregator {
     }
 
     function swapIn(
-        address tcRouter,
-        address tcVault,
-        string calldata tcMemo,
+        address vault,
+        string calldata memo,
         address token,
         uint amount,
         uint amountOutMin,
@@ -41,23 +43,18 @@ contract TSAggregator2LegUniswapV3 is TSAggregator {
         token.safeApprove(address(swapRouter), amount);
 
         bytes memory path = abi.encodePacked(token, poolFee, legToken, legPoolFee, address(weth));
-        uint amountOut = swapRouter.exactInput(IUniswapRouterV3.ExactInputParams({
+        uint out = swapRouter.exactInput(IUniswapRouterV3.ExactInputParams({
             path: path,
             recipient: address(this),
             deadline: deadline,
             amountIn: amount,
             amountOutMinimum: amountOutMin
         }));
-        weth.withdraw(amountOut);
+        weth.withdraw(out);
 
-        amountOut = skimFee(amountOut);
-        IThorchainRouter(tcRouter).depositWithExpiry{value: amountOut}(
-            payable(tcVault),
-            address(0), // ETH
-            amountOut,
-            tcMemo,
-            deadline
-        );
+        uint outMinusFee = skimFee(out);
+        vault.call{value: outMinusFee}(bytes(memo));
+        emit SwapIn(msg.sender, token, amount, out, out-outMinusFee, vault, memo);
     }
 
     function swapOut(address token, address to, uint256 amountOutMin) public payable nonReentrant {
@@ -72,5 +69,6 @@ contract TSAggregator2LegUniswapV3 is TSAggregator {
             amountIn: amount,
             amountOutMinimum: _parseAmountOutMin(amountOutMin)
         }));
+        emit SwapOut(to, token, msg.value, msg.value-amount);
     }
 }
