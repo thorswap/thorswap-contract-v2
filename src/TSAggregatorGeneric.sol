@@ -11,7 +11,6 @@ contract TSAggregatorGeneric is TSAggregator {
     using SafeTransferLib for address;
 
     event SwapIn(address from, address token, uint256 amount, uint256 out, uint256 fee, address vault, string memo);
-    event SwapOut(address to, address token, uint256 amount, uint256 fee);
 
     constructor(address _ttp) TSAggregator(_ttp) {
     }
