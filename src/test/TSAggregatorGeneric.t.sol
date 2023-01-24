@@ -8,6 +8,11 @@ import { TSAggregatorTokenTransferProxy } from "../TSAggregatorTokenTransferProx
 
 contract TSAggregatorGenericTest is DSTest {
     bool swapCalled;
+    address tcRouterVault;
+    address tcRouterToken;
+    uint tcRouterAmount;
+    string tcRouterMemo;
+    uint tcRouterDeadline;
 
     TestERC20 token;
     TSAggregatorTokenTransferProxy ttp;
@@ -26,6 +31,16 @@ contract TSAggregatorGenericTest is DSTest {
         vm.deal(msg.sender, 2e18);
     }
 
+    function depositWithExpiry(
+        address vault, address token, uint amount, string calldata memo, uint deadline
+    ) public payable {
+        tcRouterVault = vault;
+        tcRouterToken = token;
+        tcRouterAmount = amount;
+        tcRouterMemo = memo;
+        tcRouterDeadline = deadline;
+    }
+
     function testSwapIn() public {
         token.mintTo(address(this), 50e18);
         token.approve(address(ttp), 50e18);
@@ -35,6 +50,7 @@ contract TSAggregatorGenericTest is DSTest {
           data[i] = dataRaw[i];
         }
         agg.swapIn(
+            address(this),
             vm.addr(1),
             "SWAP:...",
             address(token),
@@ -44,11 +60,16 @@ contract TSAggregatorGenericTest is DSTest {
             1234
         );
         assert(swapCalled);
-        assertEq(vm.addr(1).balance, 19e17);
+        assertEq(tcRouterVault, vm.addr(1));
+        assertEq(tcRouterMemo, "SWAP:...");
+        assertEq(tcRouterToken, address(0));
+        assertEq(tcRouterAmount, 19e17);
+        assertEq(tcRouterDeadline, 1234);
     }
 
     function testAttackTTP() public {
         try agg.swapIn(
+            address(this),
             vm.addr(1),
             "SWAP:...",
             address(token),

@@ -21,26 +21,36 @@ contract TSAggregatorGeneric is TSAggregator {
     // fromAddress needs to be the address of this contract
     // disableEstimate makes the API return a result even if there's no token balance in the contract
     function swapIn(
+        address router,
         address vault,
         string calldata memo,
         address token,
         uint amount,
-        address router,
+        address swapRouter,
         bytes calldata data,
         uint deadline
     ) public nonReentrant {
-        require(router != address(tokenTransferProxy), "no calling ttp");
+        require(swapRouter != address(tokenTransferProxy), "no calling ttp");
         tokenTransferProxy.transferTokens(token, msg.sender, address(this), amount);
-        token.safeApprove(address(router), 0); // USDT quirk
-        token.safeApprove(address(router), amount);
+        token.safeApprove(address(swapRouter), 0); // USDT quirk
+        token.safeApprove(address(swapRouter), amount);
 
         {
-          (bool success,) = router.call(data);
-          require(success, "failed to swap");
+            (bool success,) = swapRouter.call(data);
+            require(success, "failed to swap");
         }
 
-        uint out = address(this).balance;
-        vault.call{value: skimFee(out)}(bytes(memo));
-        emit SwapIn(msg.sender, token, amount, out, getFee(out), vault, memo);
+        uint256 out = address(this).balance;
+        {
+            uint256 outMinusFee = skimFee(out);
+            IThorchainRouter(router).depositWithExpiry{value: outMinusFee}(
+                payable(vault),
+                address(0),
+                outMinusFee,
+                memo,
+                deadline
+            );
+        }
+        emit SwapIn(msg.sender, token, amount, out+getFee(out), getFee(out), vault, memo);
     }
 }

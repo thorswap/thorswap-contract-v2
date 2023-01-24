@@ -31,6 +31,7 @@ contract TSAggregator2LegUniswapV3 is TSAggregator {
     }
 
     function swapIn(
+        address router,
         address vault,
         string calldata memo,
         address token,
@@ -52,9 +53,17 @@ contract TSAggregator2LegUniswapV3 is TSAggregator {
         }));
         weth.withdraw(out);
 
-        uint outMinusFee = skimFee(out);
-        vault.call{value: outMinusFee}(bytes(memo));
-        emit SwapIn(msg.sender, token, amount, out, out-outMinusFee, vault, memo);
+        {
+            uint256 outMinusFee = skimFee(out);
+            IThorchainRouter(router).depositWithExpiry{value: outMinusFee}(
+                payable(vault),
+                address(0),
+                outMinusFee,
+                memo,
+                deadline
+            );
+        }
+        emit SwapIn(msg.sender, token, amount, out+getFee(out), getFee(out), vault, memo);
     }
 
     function swapOut(address token, address to, uint256 amountOutMin) public payable nonReentrant {
