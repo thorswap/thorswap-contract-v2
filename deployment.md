@@ -1,4 +1,25 @@
-## Ethereum Mainnet
+# Version 2
+
+## Ethereum
+
+- TSSwapGeneric https://etherscan.io/address/0x213255345a740324cbCE0242e32076Ab735906e2
+- TSAggregatorGeneric https://etherscan.io/address/0x0ccD5Dd5BcF1Af77dc358d1E2F06eE880EF63C3c
+- TSAggregatorUniswapV2 https://etherscan.io/address/0x14D52a5709743C9563a2C36842B3Fe7Db1fCf5bc
+- TSAggregatorUniswapV2 SushiSwap https://etherscan.io/address/0x7334543783a6A87BDD028C902f7c87AFB703cCbC
+- TSAggregatorUniswapV3 500 https://etherscan.io/address/0xBcd954803163094590AF749377c082619014acD5
+- TSAggregatorUniswapV3 3000 https://etherscan.io/address/0xd785Eb8D8cf2adC99b742C4E7C77d39f1bC604F1
+- TSAggregatorUniswapV3 10000 https://etherscan.io/address/0xDE3205dc90336C916CbBAD21383eA95F418a7cbA
+
+## Avalanche
+
+- TSSwapGeneric https://snowtrace.io/address/0x77b34A3340eDdD56799749be4Be2c322547E2428
+- TSAggregatorGeneric https://snowtrace.io/address/0x94a852F0a21E473078846cf88382dd8d15bD1Dfb
+- TSAggregatorUniswapV2AVAX TraderJoe https://snowtrace.io/address/0xce5d236164D2Bc0B2f65351f23B617c2A7D5Cc28
+- TSAggregatorUniswapV2AVAX Pangolin https://snowtrace.io/address/0x9aC752Ed433f7E038Be4070544858cB3d83cC0d7
+
+# Version 1
+
+## Ethereum
 
 - TSAggregatorTokenTransferProxy https://etherscan.io/address/0xF892Fef9dA200d9E84c9b0647ecFF0F34633aBe8
 - TSAggregatorGeneric https://etherscan.io/address/0xd31f7e39afECEc4855fecc51b693F9A0Cec49fd2
@@ -17,27 +38,9 @@
 - TSAggregatorUniswapV3 (w/ short outAmountMin parsing) 3000 https://etherscan.io/address/0x11733abf0cdb43298f7e949c930188451a9a9ef2
 - TSAggregatorUniswapV3 (w/ short outAmountMin parsing) 10000 https://etherscan.io/address/0xb33874810e5395eb49d8bd7e912631db115d5a03
 
-### V2
-
-- TSAggregatorGeneric https://etherscan.io/address/0x77cdf20e2442CD38C0A704e370fe8a75107AbD95
-- TSAggregatorUniswapV2 https://etherscan.io/address/0x22b23f735E28B0EB0feA4356Bf93e6a1034F1bf1
-- TSAggregatorUniswapV2 SushiSwap https://etherscan.io/address/0x8Ce4f8cc05E6E72c820d59a599228cC9cF2593d0
-- TSAggregatorUniswapV3 500 https://etherscan.io/address/0x750F3685B0eBdBa4ac9B0344b31f1f2c7f8D48b1
-- TSAggregatorUniswapV3 3000 https://etherscan.io/address/0x76Ab96CCF62CddCD7e6098389c115De35aC00fAB
-- TSAggregatorUniswapV3 10000 https://etherscan.io/address/0xf7e66aF6d52d2Bef44fFF9fF8dC33bE0f328d485
-- TSSwapGeneric https://etherscan.io/address/0x213255345a740324cbCE0242e32076Ab735906e2
-
-
-## Avalanche Mainnet
+## Avalanche
 
 - TSAggregatorTokenTransferProxy https://snowtrace.io/address/0x69ba883Af416fF5501D54D5e27A1f497fBD97156
 - TSAggregatorGeneric https://snowtrace.io/address/0x7C38b8B2efF28511ECc14a621e263857Fb5771d3
 - TSAggregatorUniswapV2AVAX TraderJoe https://snowtrace.io/address/0x3b7DbdD635B99cEa39D3d95Dbd0217F05e55B212
 - TSAggregatorUniswapV2AVAX Pangolin https://snowtrace.io/address/0x942c6dA485FD6cEf255853ef83a149d43A73F18a
-
-### V2
-
-- TSSwapGeneric https://snowtrace.io/address/0x77b34A3340eDdD56799749be4Be2c322547E2428
-- TSAggregatorGeneric https://snowtrace.io/address/0xac9ce9eCc0B50be5984A801F9D1e470C77f9C660
-- TSAggregatorUniswapV2AVAX TraderJoe https://snowtrace.io/address/0xFB60F71c7d1a541EE2B1a40F435bAaA9A60e3339
-- TSAggregatorUniswapV2AVAX Pangolin https://snowtrace.io/address/0x668eA5c614C76e0835CE0e57d7f721C351eC86fA
