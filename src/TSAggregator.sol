@@ -47,7 +47,7 @@ abstract contract TSAggregator is Owners, ReentrancyGuard {
     }
 
     // Parse amountOutMin treating the last 2 digits as an exponent
-    // So 15e4 = 150000. This allows for compressed memos on chains
+    // So 1504 = 150000. This allows for compressed memos on chains
     // with limited space like Bitcoin
     function _parseAmountOutMin(uint256 amount) internal pure returns (uint256) {
       return amount / 100 * (10 ** (amount % 100));

@@ -9,6 +9,7 @@
 - TSAggregatorUniswapV3 500 https://etherscan.io/address/0xBcd954803163094590AF749377c082619014acD5
 - TSAggregatorUniswapV3 3000 https://etherscan.io/address/0xd785Eb8D8cf2adC99b742C4E7C77d39f1bC604F1
 - TSAggregatorUniswapV3 10000 https://etherscan.io/address/0xDE3205dc90336C916CbBAD21383eA95F418a7cbA
+- TSAggregatorStargate https://etherscan.io/address/0x1204b5Bf0D6d48E718B1d9753A4166A7258B8432
 
 ## Avalanche
 
@@ -16,6 +17,16 @@
 - TSAggregatorGeneric https://snowtrace.io/address/0x94a852F0a21E473078846cf88382dd8d15bD1Dfb
 - TSAggregatorUniswapV2AVAX TraderJoe https://snowtrace.io/address/0xce5d236164D2Bc0B2f65351f23B617c2A7D5Cc28
 - TSAggregatorUniswapV2AVAX Pangolin https://snowtrace.io/address/0x9aC752Ed433f7E038Be4070544858cB3d83cC0d7
+- TSAggregatorWoofi https://snowtrace.io/address/0x1204b5Bf0D6d48E718B1d9753A4166A7258B8432
+- StargateReceiver https://polygonscan.com/address/0xdC01894a2559417F08edAF5F3B3AdFAa89D28C8E
+
+## Polygon
+
+- StargateReceiver https://polygonscan.com/address/0x082F52eEAc890248F00A24B4ddec6eFb55b61850
+
+## Arbitrum
+
+- StargateReceiver https://arbiscan.io/address/0xb1970f2157a1B24D40f98b252F4F60b45c7AaeED
 
 # Version 1
 
