@@ -45,7 +45,8 @@ contract TSAggregatorVTHOR is TSAggregator {
         uint256 deadline
     ) public nonReentrant {
         uint256 thorAmount = vthor.redeem(shares, address(this), msg.sender);
-        uint256 amountOut = skimFee(thorAmount);
+        uint256 fee = getFee(thorAmount); // fee kept in $THOR
+        uint256 amountOut = thorAmount - fee;
 
         address(thor).safeApprove(address(tcRouter), amountOut);
 
@@ -67,7 +68,8 @@ contract TSAggregatorVTHOR is TSAggregator {
         uint256 deadline
     ) public nonReentrant {
         uint256 thorAmount = vthor.redeem(shares, address(this), msg.sender);
-        uint256 amountOut = skimFee(thorAmount);
+        uint256 fee = getFee(thorAmount); // fee kept in $THOR
+        uint256 amountOut = thorAmount - fee;
 
         thor.approve(address(swapRouter), amountOut);
 
@@ -91,7 +93,7 @@ contract TSAggregatorVTHOR is TSAggregator {
         );
     }
 
-    // swapOut from tcRouter and (swap)deposit for vTHOR
+    // swapOut from tcRouter and deposit for vTHOR
     function swapOut(
         address token, // not used now, could allow for more token staking in the future
         address to,
@@ -102,14 +104,18 @@ contract TSAggregatorVTHOR is TSAggregator {
         address[] memory path = new address[](2);
         path[0] = weth;
         path[1] = address(thor);
-        swapRouter.swapExactETHForTokens{value: msg.value}(
+
+        uint[] memory amounts = swapRouter.swapExactETHForTokens{value: msg.value}(
             _parseAmountOutMin(amountOutMin),
             path,
-            to,
-            type(uint256).max
+            address(this),
+            type(uint256).max // deadline
         );
 
-        address(thor).safeApprove(address(vthor), thor.balanceOf(address(this)));
-        vthor.deposit(address(this).balance, to);
+        // uint ethAmount = amounts[0];
+        uint tokenAmount = amounts[1];
+
+        address(thor).safeApprove(address(vthor), tokenAmount);
+        vthor.deposit(tokenAmount, to);
     }
 }
