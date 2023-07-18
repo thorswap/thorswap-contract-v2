@@ -105,17 +105,18 @@ contract TSAggregatorVTHOR is TSAggregator {
         path[0] = weth;
         path[1] = address(thor);
 
-        uint[] memory amounts = swapRouter.swapExactETHForTokens{value: msg.value}(
-            _parseAmountOutMin(amountOutMin),
-            path,
-            address(this),
-            type(uint256).max // deadline
-        );
+        // to fix
+        // uint[] memory amounts = swapRouter.swapExactETHForTokens{value: msg.value}(
+        //     _parseAmountOutMin(amountOutMin),
+        //     path,
+        //     address(this),
+        //     type(uint256).max // deadline
+        // );
 
-        // uint ethAmount = amounts[0];
-        uint tokenAmount = amounts[1];
+        // // uint ethAmount = amounts[0];
+        // uint tokenAmount = amounts[1];
 
-        address(thor).safeApprove(address(vthor), tokenAmount);
-        vthor.deposit(tokenAmount, to);
+        // address(thor).safeApprove(address(vthor), tokenAmount);
+        // vthor.deposit(tokenAmount, to);
     }
 }
