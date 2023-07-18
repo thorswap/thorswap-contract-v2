@@ -10,7 +10,7 @@
 - TSAggregatorUniswapV3 3000 https://etherscan.io/address/0xd785Eb8D8cf2adC99b742C4E7C77d39f1bC604F1
 - TSAggregatorUniswapV3 10000 https://etherscan.io/address/0xDE3205dc90336C916CbBAD21383eA95F418a7cbA
 - TSAggregatorStargate https://etherscan.io/address/0x1204b5Bf0D6d48E718B1d9753A4166A7258B8432
-- TSLedgerAdapter https://etherscan.io/address/0x8fec55866f4054788903c791f4ec06975b47745e
+- TSLedgerAdapter https://etherscan.io/address/0xaD545d047E34862121695F8E37aeEB71324a9E78
 
 ## Avalanche
 
