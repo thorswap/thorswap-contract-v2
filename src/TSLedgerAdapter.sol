@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-// libs
 import { SafeTransferLib } from "../lib/SafeTransferLib.sol";
 import { ReentrancyGuard } from "../lib/ReentrancyGuard.sol";
 import { Owners } from "./Owners.sol";
@@ -22,6 +21,21 @@ contract TSLedgerAdapter is Owners, ReentrancyGuard {
         _setOwner(msg.sender, true);
     }
 
+    function addOwner(address owner, bool isOwner) external isOwner {
+        _setOwner(owner, isOwner);
+    }
+
+    function removeOwner(address owner) external isOwner {
+        _setOwner(owner, false);
+    }
+
+    function revokeOwnership() external isOwner {
+        _setOwner(msg.sender, false);
+    }
+
+    // aggregator configs should be restriced to allowed contracts
+    // after initial setup to copy current whitelist
+    // ownership will be transfered to a multisig controlled by multiple parties
     function setAggregatorConfig(uint16 id, address aggregator, string calldata functionSignature) external isOwner {
         aggregatorConfigs[id] = AggregatorConfig(aggregator, functionSignature);
     }
@@ -56,19 +70,7 @@ contract TSLedgerAdapter is Owners, ReentrancyGuard {
         string calldata buyAmountMin
     ) external nonReentrant {
         (address aggregator, string memory functionSignature) = _getAggregatorConfig(aggregatorConfig);
-        
         bytes memory data = abi.encodeWithSignature(functionSignature, params);
-
         _proxyCall(aggregator, data);
-
-        emit TSLedgerCall(
-            msg.sender, 
-            aggregatorConfig, 
-            memo, 
-            sellAsset, 
-            sellAmount, 
-            buyAsset, 
-            buyAmountExpected
-        );
     }
 }
