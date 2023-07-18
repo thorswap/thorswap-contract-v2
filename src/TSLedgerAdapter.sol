@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.17;
 
 import { SafeTransferLib } from "../lib/SafeTransferLib.sol";
 import { ReentrancyGuard } from "../lib/ReentrancyGuard.sol";
 import { Owners } from "./Owners.sol";
 
 contract TSLedgerAdapter is Owners, ReentrancyGuard {
-    using SafeTransferLib for address;
-
+    
     struct AggregatorConfig {
         address aggregator;
         string functionSignature;
@@ -15,14 +14,12 @@ contract TSLedgerAdapter is Owners, ReentrancyGuard {
 
     mapping(uint16 => AggregatorConfig) public aggregatorConfigs;
 
-    event TSLedgerCall(address from, uint16 aggregatorConfig, string, memo, string sellAsset, string sellAmount, string buyAsset, string buyAmountExpected);
-
     constructor() {
         _setOwner(msg.sender, true);
     }
 
-    function addOwner(address owner, bool isOwner) external isOwner {
-        _setOwner(owner, isOwner);
+    function addOwner(address owner) external isOwner {
+        _setOwner(owner, true);
     }
 
     function removeOwner(address owner) external isOwner {
@@ -41,11 +38,7 @@ contract TSLedgerAdapter is Owners, ReentrancyGuard {
     }
 
     function getConfig(uint16 id) public view returns (address aggregator, string memory functionSignature) {
-        return _getAggregatorConfig(id);
-    }
-
-    function _getAggregatorConfig(uint16 id) internal view returns (address aggregator, string memory functionSignature) {
-        AggregatorConfig storage config = aggregatorConfigs[id];
+        AggregatorConfig memory config = aggregatorConfigs[id];
         require(config.aggregator != address(0), "AggregatorConfig not set");
 
         aggregator = config.aggregator;
@@ -69,8 +62,10 @@ contract TSLedgerAdapter is Owners, ReentrancyGuard {
         string calldata buyAmountExpected,
         string calldata buyAmountMin
     ) external nonReentrant {
-        (address aggregator, string memory functionSignature) = _getAggregatorConfig(aggregatorConfig);
-        bytes memory data = abi.encodeWithSignature(functionSignature, params);
-        _proxyCall(aggregator, data);
+        AggregatorConfig memory config = aggregatorConfigs[aggregatorConfig];
+        require(config.aggregator != address(0), "AggregatorConfig not set");
+
+        bytes memory data = abi.encodeWithSignature(config.functionSignature, params);
+        _proxyCall(config.aggregator, data);
     }
 }
