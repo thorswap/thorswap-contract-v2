@@ -80,19 +80,21 @@ contract Deploy is DSTest {
         //    address(0), 0xE30c6b39c91A4bb6fD734dae898B63985213032e, 100100
         //);
 
-        //// SWAP IN
-        //address[] memory path = new address[](3);
-        //path[0] = 0x580A84C73811E1839F75d86d75d88cCa0c241fF4;
-        //path[1] = 0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270;
-        //path[2] = 0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174;
-        //IERC20(0x580A84C73811E1839F75d86d75d88cCa0c241fF4).approve(0xb1970f2157a1B24D40f98b252F4F60b45c7AaeED, type(uint256).max);
-        //StargateReceiver(0xb1970f2157a1B24D40f98b252F4F60b45c7AaeED).swap{value:36568725491667431362}(
-        //    0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff, path, 1641746111448940083419, 50000000,
-        //    0xD37BbE5744D730a1d98d8DC97c42F0Ca46aD7146,
-        //    0xbDF348cd961e303B484928BcB2fE0Bd6D4Ee0855,
-        //    "=:ETH.USDC",
-        //    type(uint256).max
-        //);
+        // SWAP IN
+        address[] memory path = new address[](3);
+        path[0] = 0x912CE59144191C1204E64559FE8253a0e49E6548;
+        path[1] = 0x82aF49447D8a07e3bd95BD0d56f35241523fBab1;
+        path[2] = 0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8;
+        IERC20(path[0]).approve(0xb1970f2157a1B24D40f98b252F4F60b45c7AaeED, type(uint256).max);
+        uint256 f = StargateReceiver(0xb1970f2157a1B24D40f98b252F4F60b45c7AaeED).getFee();
+        uint256 b = IERC20(path[0]).balanceOf(0xE30c6b39c91A4bb6fD734dae898B63985213032e);
+        StargateReceiver(0xb1970f2157a1B24D40f98b252F4F60b45c7AaeED).swap{value: f}(
+            0xdC01894a2559417F08edAF5F3B3AdFAa89D28C8E, path, b, 10e6,
+            0xD37BbE5744D730a1d98d8DC97c42F0Ca46aD7146,
+            0xea7684E0Fe44bc67c74DF69ceeBa23d3B4404D68,
+            "=:THOR.RUNE:t",
+            type(uint256).max
+        );
         vm.stopBroadcast();
     }
 }
