@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity 0.8.10;
 
 import {SafeTransferLib} from "../lib/SafeTransferLib.sol";
 import {TSAggregator} from "./TSAggregator.sol";

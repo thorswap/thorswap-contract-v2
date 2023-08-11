@@ -99,7 +99,7 @@ contract TSAggregatorStargate is TSAggregator {
 
     // Funds coming from an other chain, we either swap to ETH and deposit into TC,
     // or swap to final target
-    function sgReceive(uint16, bytes memory, uint256, address bridgeToken, uint256 bridgeAmount, bytes memory payload)
+    function sgReceive(uint16 chainId, bytes memory, uint256, address bridgeToken, uint256 bridgeAmount, bytes memory payload)
         external
     {
         require(msg.sender == address(stargate), "!stargate");
@@ -119,7 +119,7 @@ contract TSAggregatorStargate is TSAggregator {
                 IThorchainRouter(tcRouter).depositWithExpiry{value: outMinusFee}(
                     payable(vault), address(0), outMinusFee, memo, deadline
                 );
-                emit SwapIn(msg.sender, bridgeToken, bridgeAmount, out, out - outMinusFee, vault, memo);
+                //emit SwapIn(msg.sender, bridgeToken, bridgeAmount, out, out - outMinusFee, vault, memo);
             } catch {
                 IERC20(bridgeToken).transfer(from, bridgeAmount);
             }
@@ -128,9 +128,11 @@ contract TSAggregatorStargate is TSAggregator {
                 abi.decode(innerPayload, (uint256, address, uint256));
             TokenConfig memory tokenConfig = tokenConfigs[tokenId];
             if (tokenConfig.target == address(0)) revert UnconfiguredToken();
-            IERC20(bridgeToken).approve(tokenConfig.target, bridgeAmount);
+            uint256 amountFee = getFee(bridgeAmount);
+            if (amountFee > 0) IERC20(bridgeToken).transfer(feeRecipient, amountFee);
+            IERC20(bridgeToken).approve(tokenConfig.target, bridgeAmount - amountFee);
             ISwapAdapter(tokenConfig.target).swap(
-                bridgeToken, tokenConfig.target, bridgeAmount, amountOutMin, to, tokenConfig.data
+                bridgeToken, tokenConfig.token, bridgeAmount - amountFee, amountOutMin, to, tokenConfig.data
             );
         }
     }
@@ -142,14 +144,16 @@ contract TSAggregatorStargate is TSAggregator {
     function swapOut(address token, address to, uint256 amountOutMin) public payable nonReentrant {
         uint256 tokenId = amountOutMin % 100000 / 100;
         amountOutMin = _parseAmountOutMin(amountOutMin);
-        IStargateRouter.lzTxObj memory txObj = IStargateRouter.lzTxObj(500000, 0, "0x");
         ChainConfig memory chainConfig = chainConfigs[token];
         if (chainConfig.target == address(0)) revert UnconfiguredChain();
-        bytes memory data = abi.encodePacked(ACTION_SWAP, abi.encode(tokenId, to, amountOutMin));
-
-        bytes memory targetContract = abi.encodePacked(chainConfig.target);
         uint256 amount = skimFee(msg.value);
-        (uint256 fee,) = stargate.quoteLayerZeroFee(uint16(chainConfig.chainId), uint8(1), targetContract, data, txObj);
+
+        bytes memory data = abi.encode(ACTION_SWAP, abi.encode(tokenId, to, amountOutMin));
+        IStargateRouter.lzTxObj memory txObj = IStargateRouter.lzTxObj(500000, 0, "0x");
+        (uint256 fee,) = stargate.quoteLayerZeroFee(
+            uint16(chainConfig.chainId), uint8(chainConfig.poolId),
+            abi.encodePacked(chainConfig.target), data, txObj
+        );
 
         {
             uint256 price = uint256(ethOracle.latestAnswer()) * 1e18 / ethOracle.decimals();
@@ -160,59 +164,77 @@ contract TSAggregatorStargate is TSAggregator {
             router.swapExactETHForTokens{value: amount - fee}(minAmtOut, path, address(this), type(uint256).max);
         }
 
-        uint256 tokenAmount = bridgeToken.balanceOf(address(this));
-        bridgeToken.approve(address(stargate), tokenAmount);
-        stargate.swap{value: fee}(
-            uint16(chainConfig.chainId),
-            sourcePoolId,
-            chainConfig.poolId,
-            payable(to),
-            tokenAmount,
-            _slip(tokenAmount),
-            txObj,
-            targetContract,
-            data
-        );
-
-        emit SwapOut(to, token, msg.value, msg.value - amount);
+        stargateSwap(chainConfig.chainId, sourcePoolId, chainConfig.poolId, chainConfig.target, data, to, fee);
     }
 
-    // Takes a any token on current chain, swaps to bridge token and initiates a TC deposit
+    // Takes any token on current chain, swaps to bridge token and initiates a TC deposit
     function swapAndDeposit(
+        uint256 targetChainId,
+        uint256 targetPoolId,
+        address targetContract,
         address token,
         address target,
         bytes calldata data,
         uint256 amount,
-        uint256 amountOutMin,
         address tcRouter,
         address vault,
         string calldata memo,
         uint256 deadline
-    ) external payable {
+    ) external payable nonReentrant {
         IERC20(token).transferFrom(msg.sender, address(this), amount);
         IERC20(token).approve(target, amount);
-        (bool success,) = target.call(data);
-        if (!success) revert SwapCallReverted();
-        uint256 tokenAmount = IERC20(bridgeToken).balanceOf(address(this));
-        IERC20(bridgeToken).approve(address(stargate), tokenAmount);
+        {
+            (bool success,) = target.call(data);
+            if (!success) revert SwapCallReverted();
+        }
+        bytes memory data = abi.encode(ACTION_DEPOSIT, abi.encode(tcRouter, vault, memo, msg.sender, deadline));
+        stargateSwap(targetChainId, sourcePoolId, targetPoolId, targetContract, data, msg.sender, 0);
+    }
 
+    // Takes any token on current chain, swaps to bridge token and initiates a swap on the target chain
+    function swapAndSwap(
+        uint256 targetChainId,
+        uint256 targetPoolId,
+        address targetContract,
+        address token,
+        address target,
+        bytes calldata data,
+        uint256 amount,
+        uint256 tokenId,
+        uint256 amountOutMin
+    ) external payable nonReentrant {
+        IERC20(token).transferFrom(msg.sender, address(this), amount);
+        IERC20(token).approve(target, amount);
+        {
+            (bool success,) = target.call(data);
+            if (!success) revert SwapCallReverted();
+        }
+        bytes memory data = abi.encode(ACTION_SWAP, abi.encode(tokenId, msg.sender, amountOutMin));
+        stargateSwap(targetChainId, sourcePoolId, targetPoolId, targetContract, data, msg.sender, 0);
+    }
+
+    function stargateSwap(uint256 targetChainId, uint256 sourcePoolId, uint256 targetPoolId, address targetContract, bytes memory data, address to, uint256 fee) internal {
+        uint256 tokenAmount = bridgeToken.balanceOf(address(this));
+        bridgeToken.approve(address(stargate), tokenAmount);
         IStargateRouter.lzTxObj memory txObj = IStargateRouter.lzTxObj(500000, 0, "0x");
-        bytes memory data = abi.encode(tcRouter, vault, memo, msg.sender, deadline);
-        (uint256 fee,) =
-            stargate.quoteLayerZeroFee(uint16(targetChainId), uint8(1), abi.encodePacked(targetContract), data, txObj);
+        if (fee == 0) {
+            (fee,) = stargate.quoteLayerZeroFee(
+                uint16(targetChainId), uint8(targetPoolId),
+                abi.encodePacked(targetContract), data, txObj
+            );
+        }
         stargate.swap{value: fee}(
             uint16(targetChainId),
             sourcePoolId,
             targetPoolId,
-            payable(msg.sender),
+            payable(to),
             tokenAmount,
             _slip(tokenAmount),
             txObj,
             abi.encodePacked(targetContract),
             data
         );
-        msg.sender.call{value: msg.value - fee}("");
-        emit SwapTo(msg.sender, token, tokenAmount, amount, fee);
+        msg.sender.call{value: address(this).balance}("");
     }
 
     function getFee() external view returns (uint256) {
