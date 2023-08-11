@@ -43,14 +43,11 @@ contract TSAggregatorStargate is TSAggregator {
 
     uint256 private constant ACTION_SWAP = 1;
     uint256 private constant ACTION_DEPOSIT = 2;
-    uint256 public constant targetChainId = 101;
     uint256 public constant sourcePoolId = 1;
-    uint256 public constant targetPoolId = 1;
     IStargateRouter public stargate;
     IERC20 public bridgeToken;
     IOracle public ethOracle;
     IUniswapRouterV2 public router;
-    address public targetContract;
     uint256 public slippage = 100;
     mapping(address => ChainConfig) public chainConfigs;
     mapping(uint256 => TokenConfig) public tokenConfigs;
@@ -61,14 +58,13 @@ contract TSAggregatorStargate is TSAggregator {
     event SwapIn(address from, address token, uint256 amount, uint256 out, uint256 fee, address vault, string memo);
     event SwapOut(address to, address token, uint256 amount, uint256 fee);
 
-    constructor(address _stargate, address _router, address _bridgeToken, address _ethOracle, address _targetContract)
+    constructor(address _stargate, address _router, address _bridgeToken, address _ethOracle)
         TSAggregator(address(0))
     {
         stargate = IStargateRouter(_stargate);
         bridgeToken = IERC20(_bridgeToken);
         ethOracle = IOracle(_ethOracle);
         router = IUniswapRouterV2(_router);
-        targetContract = _targetContract;
     }
 
     function setEthOracle(address _ethOracle) external isOwner {
@@ -77,10 +73,6 @@ contract TSAggregatorStargate is TSAggregator {
 
     function setRouter(address _router) external isOwner {
         router = IUniswapRouterV2(_router);
-    }
-
-    function setTargetContract(address _targetContract) external isOwner {
-        targetContract = _targetContract;
     }
 
     function setSlippage(uint256 _slippage) external isOwner {
@@ -176,10 +168,7 @@ contract TSAggregatorStargate is TSAggregator {
         address target,
         bytes calldata data,
         uint256 amount,
-        address tcRouter,
-        address vault,
-        string calldata memo,
-        uint256 deadline
+        bytes calldata payload
     ) external payable nonReentrant {
         IERC20(token).transferFrom(msg.sender, address(this), amount);
         IERC20(token).approve(target, amount);
@@ -187,7 +176,8 @@ contract TSAggregatorStargate is TSAggregator {
             (bool success,) = target.call(data);
             if (!success) revert SwapCallReverted();
         }
-        bytes memory data = abi.encode(ACTION_DEPOSIT, abi.encode(tcRouter, vault, memo, msg.sender, deadline));
+        // payload = address tcRouter, address vault, string calldata memo, uint256 deadline
+        bytes memory data = abi.encode(ACTION_DEPOSIT, payload);
         stargateSwap(targetChainId, sourcePoolId, targetPoolId, targetContract, data, msg.sender, 0);
     }
 
@@ -237,7 +227,7 @@ contract TSAggregatorStargate is TSAggregator {
         msg.sender.call{value: address(this).balance}("");
     }
 
-    function getFee() external view returns (uint256) {
+    function getFee(uint256 targetChainId, uint256 targetPoolId) external view returns (uint256) {
         IStargateRouter.lzTxObj memory txObj = IStargateRouter.lzTxObj(500000, 0, "0x");
         bytes memory data = abi.encode(address(0), address(0), "=:ETH.ETH:123456", address(0), 123456);
         (uint256 fee,) = stargate.quoteLayerZeroFee(uint16(targetChainId), uint8(targetPoolId), abi.encodePacked(address(0)), data, txObj);

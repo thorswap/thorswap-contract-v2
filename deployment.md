@@ -11,6 +11,7 @@
 - TSAggregatorUniswapV3 10000 https://etherscan.io/address/0xDE3205dc90336C916CbBAD21383eA95F418a7cbA
 - TSAggregatorStargate https://etherscan.io/address/0x1204b5Bf0D6d48E718B1d9753A4166A7258B8432
 - TSLedgerAdapter https://etherscan.io/address/0xaD545d047E34862121695F8E37aeEB71324a9E78
+- TSAggregatorStargate V2 https://etherscan.io/address/0x48f68ff093b3b3A80D2FC97488EaD97E16b86283
 
 ## Avalanche
 
@@ -28,6 +29,8 @@
 ## Arbitrum
 
 - StargateReceiver https://arbiscan.io/address/0xb1970f2157a1B24D40f98b252F4F60b45c7AaeED
+- SwapAdapterUniswapV2 Camelot https://arbiscan.io/address/0x17e7e5016ac1D4527F211bEbf5b11FE36bda7D10
+- TSAggregatorStargate https://arbiscan.io/address/0x55cF4D1E35221F0a7EF3F5D1ce5a07E3EcdB25B2
 
 # Version 1
 

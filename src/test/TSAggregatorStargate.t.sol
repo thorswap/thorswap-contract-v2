@@ -15,7 +15,7 @@ contract TSAggregatorStargateTest is DSTest {
         swapToken = new TestERC20();
         bridgeToken = new TestERC20();
         c = new TSAggregatorStargate(
-            address(this), address(this), address(bridgeToken), address(this), address(this)
+            address(this), address(this), address(bridgeToken), address(this)
         );
         c.setFee(30, vm.addr(1));
     }
@@ -33,11 +33,6 @@ contract TSAggregatorStargateTest is DSTest {
     function testSetRouter() public {
         c.setRouter(vm.addr(1));
         assertEq(address(c.router()), vm.addr(1));
-    }
-
-    function testSetTargetContract() public {
-        c.setTargetContract(vm.addr(1));
-        assertEq(c.targetContract(), vm.addr(1));
     }
 
     function testSetChainConfig() public {
@@ -122,10 +117,7 @@ contract TSAggregatorStargateTest is DSTest {
             address(this),
             abi.encodeWithSignature("testSwap()"),
             9e18,
-            vm.addr(10),
-            vm.addr(11),
-            "memo",
-            1234
+            abi.encode(vm.addr(10), vm.addr(11), "memo", address(this), 1234)
         );
         assertTrue(testSwapCalled);
         assertEq(sgSwapTargetChainId, 101);
