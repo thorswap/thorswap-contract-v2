@@ -9,7 +9,7 @@ import {TSAggregatorTokenTransferProxy} from "./TSAggregatorTokenTransferProxy.s
 contract TSSwapGeneric is TSAggregator {
     using SafeTransferLib for address;
 
-    event Swap(address tokenId, address tokenOut, address recipient, uint256 amount, uint256 out, uint256 fee);
+    event Swap(address tokenIn, address tokenOut, address recipient, uint256 amount, uint256 out, uint256 fee);
 
     constructor(address _ttp) TSAggregator(_ttp) {}
 
