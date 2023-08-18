@@ -1,16 +1,19 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.10;
+pragma solidity 0.8.17;
 
 import { SafeTransferLib } from "../lib/SafeTransferLib.sol";
 import { TSAggregator } from "./TSAggregator.sol";
 import { IThorchainRouter } from "./interfaces/IThorchainRouter.sol";
-import { IUniswapRouterV2 } from "./interfaces/IUniswapRouterV2.sol";
+import { IUniswapRouterV2 } from "./interfaces/IUniswapRouterV2extended.sol";
+import { Owners } from "./Owners.sol";
 
-contract TSAggregatorUniswapV2 is TSAggregator {
+contract TSAggregatorUniswapV2 is Owners, TSAggregator {
     using SafeTransferLib for address;
 
     address public weth;
     IUniswapRouterV2 public swapRouter;
+
+    mapping(address => bool) public tokensWithTransferFee;
 
     event SwapIn(address from, address token, uint256 amount, uint256 out, uint256 fee, address vault, string memo);
     event SwapOut(address to, address token, uint256 amount, uint256 fee);
@@ -20,6 +23,10 @@ contract TSAggregatorUniswapV2 is TSAggregator {
     ) TSAggregator(_ttp) {
         weth = _weth;
         swapRouter = IUniswapRouterV2(_swapRouter);
+    }
+
+    function addTokenWithTransferFee(address token) external isOwner {
+        tokensWithTransferFee[token] = true;
     }
 
     function swapIn(
@@ -38,13 +45,24 @@ contract TSAggregatorUniswapV2 is TSAggregator {
         address[] memory path = new address[](2);
         path[0] = token;
         path[1] = weth;
-        swapRouter.swapExactTokensForETH(
-            amount,
-            amountOutMin,
-            path,
-            address(this),
-            deadline
-        );
+
+        if(tokensWithTransferFee[token]) {
+            swapRouter.swapExactTokensForETHSupportingFeeOnTransferTokens(
+                amount,
+                amountOutMin,
+                path,
+                address(this),
+                deadline
+            );
+        } else {
+            swapRouter.swapExactTokensForETH(
+                amount,
+                amountOutMin,
+                path,
+                address(this),
+                deadline
+            );
+        }
 
         uint256 out = address(this).balance;
         {
@@ -65,12 +83,23 @@ contract TSAggregatorUniswapV2 is TSAggregator {
         address[] memory path = new address[](2);
         path[0] = weth;
         path[1] = token;
-        swapRouter.swapExactETHForTokens{value: amount}(
-            _parseAmountOutMin(amountOutMin),
-            path,
-            to,
-            type(uint).max // deadline
-        );
+
+        if(tokensWithTransferFee[token]) {
+            swapRouter.swapExactETHForTokensSupportingFeeOnTransferTokens{value: amount}(
+                _parseAmountOutMin(amountOutMin),
+                path,
+                to,
+                type(uint).max // deadline
+            );
+        } else {
+            swapRouter.swapExactETHForTokens{value: amount}(
+                _parseAmountOutMin(amountOutMin),
+                path,
+                to,
+                type(uint).max // deadline
+            );
+        }
+        
         emit SwapOut(to, token, msg.value, msg.value-amount);
     }
 }
