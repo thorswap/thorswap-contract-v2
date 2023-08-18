@@ -13,6 +13,15 @@ contract TSSwapGeneric is TSAggregator {
 
     constructor(address _ttp) TSAggregator(_ttp) {}
 
+    // only in case someone accidentally sends tokens to this contract
+    function rescueFunds(address token, uint256 amount, address to) external isOwner {
+        if (token == address(0)) {
+            payable(to).transfer(amount);
+        } else {
+            token.safeTransfer(to, amount);
+        }
+    }
+
     function swap(
         address tokenIn,
         address tokenOut,
@@ -21,31 +30,62 @@ contract TSSwapGeneric is TSAggregator {
         address router,
         bytes calldata data,
         bytes calldata fees
-    ) public nonReentrant {
+    ) public payable nonReentrant {
         require(router != address(tokenTransferProxy), "no calling ttp");
-        tokenTransferProxy.transferTokens(tokenIn, msg.sender, address(this), amount);
-        tokenIn.safeApprove(address(router), 0); // USDT quirk
-        tokenIn.safeApprove(address(router), amount);
+
+        if (tokenIn == address(0)) {
+            // if tokenIn is Ether
+            require(msg.value == amount, "Ether amount mismatch");
+        } else {
+            tokenTransferProxy.transferTokens(
+                tokenIn,
+                msg.sender,
+                address(this),
+                amount
+            );
+            tokenIn.safeApprove(address(router), 0); // USDT quirk
+            tokenIn.safeApprove(address(router), amount);
+        }
 
         // call swap contract
         {
-            (bool success,) = router.call(data);
+            (bool success, ) = router.call(data);
             require(success, "failed to swap");
         }
 
-        // collect fees
-        uint256 out = IERC20(tokenOut).balanceOf(address(this));
+        uint256 out;
+        if (tokenOut == address(0)) {
+            // if tokenOut is Ether
+            out = address(this).balance - msg.value; // deduct initial sent Ether, if any
+        } else {
+            out = IERC20(tokenOut).balanceOf(address(this));
+        }
         require(out > 0, "no amount out");
+
         uint256 fee = getFee(out);
-        tokenOut.safeTransfer(feeRecipient, fee);
+        if (tokenOut == address(0)) {
+            payable(feeRecipient).transfer(fee);
+        } else {
+            tokenOut.safeTransfer(feeRecipient, fee);
+        }
+
         (uint256[] memory feePercents, address[] memory feeRecipients) = abi.decode(fees, (uint256[], address[]));
         for (uint256 i = 0; i < feePercents.length; i++) {
-            tokenOut.safeTransfer(feeRecipients[i], out * feePercents[i] / 10000);
-            fee += out * feePercents[i] / 10000;
+            uint256 additionalFee = (out * feePercents[i]) / 10000;
+            if (tokenOut == address(0)) {
+                payable(feeRecipients[i]).transfer(additionalFee);
+            } else {
+                tokenOut.safeTransfer(feeRecipients[i], additionalFee);
+            }
+            fee += additionalFee;
         }
 
         // send leftover to recipient
-        tokenOut.safeTransfer(recipient, out - fee);
+        if (tokenOut == address(0)) {
+            payable(recipient).transfer(out - fee);
+        } else {
+            tokenOut.safeTransfer(recipient, out - fee);
+        }
         emit Swap(tokenIn, tokenOut, recipient, amount, out, fee);
     }
 }
