@@ -71,13 +71,12 @@ contract TSSwapGeneric is TSAggregator {
 
         (uint256[] memory feePercents, address[] memory feeRecipients) = abi.decode(fees, (uint256[], address[]));
         for (uint256 i = 0; i < feePercents.length; i++) {
-            uint256 additionalFee = (out * feePercents[i]) / 10000;
             if (tokenOut == address(0)) {
-                payable(feeRecipients[i]).transfer(additionalFee);
+                payable(feeRecipients[i]).transfer((out * feePercents[i]) / 1000);
             } else {
-                tokenOut.safeTransfer(feeRecipients[i], additionalFee);
+                tokenOut.safeTransfer(feeRecipients[i], (out * feePercents[i]) / 1000);
             }
-            fee += additionalFee;
+            fee += (out * feePercents[i]) / 1000;
         }
 
         // send leftover to recipient
