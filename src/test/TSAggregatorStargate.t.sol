@@ -14,7 +14,9 @@ contract TSAggregatorStargateTest is DSTest {
     function setUp() public {
         swapToken = new TestERC20();
         bridgeToken = new TestERC20();
-        c = new TSAggregatorStargate(address(this), address(this), address(bridgeToken), address(this));
+        c = new TSAggregatorStargate(
+            address(this), address(this), address(bridgeToken), address(this)
+        );
         c.setFee(30, vm.addr(1));
     }
 
@@ -23,32 +25,35 @@ contract TSAggregatorStargateTest is DSTest {
         assertEq(c.slippage(), 123);
     }
 
-    function testChainTargetContact() public {
-        c.setChainTargetContract(42, vm.addr(42));
-        assertEq(c.chainTargetContract(42), vm.addr(42));
+    function testSetEthOracle() public {
+        c.setEthOracle(vm.addr(42));
+        assertEq(address(c.ethOracle()), vm.addr(42));
     }
 
-    function testChainTargetChainId() public {
-        c.setChainTargetPoolId(42, 142);
-        assertEq(c.chainTargetPoolId(42), 142);
+    function testSetRouter() public {
+        c.setRouter(vm.addr(1));
+        assertEq(address(c.router()), vm.addr(1));
     }
 
-    function testTokenConfig() public {
-        address[] memory path = new address[](1);
-        path[0] = vm.addr(4);
-        c.setTokenConfig(42, 101, vm.addr(2), vm.addr(3), path);
-        (uint256 chainId, address token, address router) = c.tokens(42);
-        assertEq(chainId, 101);
+    function testSetChainConfig() public {
+        c.setChainConfig(vm.addr(1), 2, 3, vm.addr(4));
+        (uint256 chainId, uint256 poolId, address target) = c.chainConfigs(vm.addr(1));
+        assertEq(chainId, 2);
+        assertEq(poolId, 3);
+        assertEq(target, vm.addr(4));
+    }
+
+    function testSetTokenConfig() public {
+        c.setTokenConfig(1, vm.addr(2), vm.addr(3), "4");
+        (address token, address target, bytes memory data) = c.tokenConfigs(1);
         assertEq(token, vm.addr(2));
-        assertEq(router, vm.addr(3));
-        address[] memory savedPath = c.getTokensPath(42);
-        assertEq(savedPath.length, 1);
-        assertEq(savedPath[0], vm.addr(4));
+        assertEq(target, vm.addr(3));
+        assertEq(data.length, 1);
     }
 
     function testSgReceive() public {
         bridgeToken.mintTo(address(c), 20e18);
-        bytes memory payload = abi.encode(address(this), vm.addr(2), "=:ETH.ETH:123456", vm.addr(3), 123456);
+        bytes memory payload = abi.encode(2, abi.encode(address(this), vm.addr(2), "=:ETH.ETH:123456", vm.addr(3), 123456));
         uint256 before = address(this).balance;
         c.sgReceive(uint16(0), "", 0, address(bridgeToken), 20e18, payload);
         assertEq(bridgeToken.balanceOf(vm.addr(99)), 20e18);
@@ -64,14 +69,26 @@ contract TSAggregatorStargateTest is DSTest {
         assertEq(depositAmount, 3.988e18);
         assertEq(depositMemo, "=:ETH.ETH:123456");
         assertEq(depositDeadline, 123456);
+
+        depositDeadline = 0;
+        c.setTokenConfig(9, vm.addr(1), address(this), "123");
+        bridgeToken.mintTo(address(c), 20e18);
+        payload = abi.encode(1, abi.encode(9, vm.addr(9), 12345));
+        c.sgReceive(uint16(0), "", 0, address(bridgeToken), 20e18, payload);
+        assertEq(depositDeadline, 0);
+        assertEq(swapAdapterInput, address(bridgeToken));
+        assertEq(swapAdapterOutput, vm.addr(1));
+        assertEq(swapAdapterAmount, 19.94e18);
+        assertEq(swapAdapterAmountOutMin, 12345);
+        assertEq(swapAdapterTo, vm.addr(9));
+        assertEq(string(swapAdapterData), string("123"));
     }
 
     function testSwapOut() public {
-        address[] memory path = new address[](1);
-        path[0] = vm.addr(12);
-        c.setChainTargetContract(110, vm.addr(13));
-        c.setTokenConfig(8, 110, vm.addr(10), vm.addr(11), path);
-        c.swapOut{value: 20e18}(address(1), vm.addr(2), 1200803);
+        vm.deal(address(this), 20e18);
+        c.setChainConfig(vm.addr(9), 110, 1, vm.addr(13));
+        c.setTokenConfig(8, vm.addr(10), vm.addr(11), "123");
+        c.swapOut{value: 20e18}(vm.addr(9), vm.addr(2), 1200803);
         assertEq(swapAmountOutMin, 987029999);
         assertEq(swapTokenOut, address(bridgeToken));
         assertEq(swapTo, address(c));
@@ -83,7 +100,62 @@ contract TSAggregatorStargateTest is DSTest {
         assertEq(sgSwapAmount, 340e18);
         assertEq(sgSwapAmountMin, 336.6e18);
         assertEq(string(sgSwapTo), string(abi.encodePacked(vm.addr(13))));
-        bytes memory payload = abi.encode(vm.addr(10), vm.addr(11), path, vm.addr(2), 12008000);
+        bytes memory payload = abi.encode(1, abi.encode(8, vm.addr(2), 12008000));
+        assertEq(string(sgSwapPayload), string(payload));
+    }
+
+    function testSwapAndDeposit() public {
+        vm.deal(address(this), 7e18);
+        c.setTokenConfig(3, vm.addr(4), vm.addr(5), "6");
+        swapToken.mintTo(address(this), 9e18);
+        swapToken.approve(address(c), 9e18);
+        c.swapAndDeposit{value: 7e18}(
+            101,
+            1,
+            address(this),
+            address(swapToken),
+            address(this),
+            abi.encodeWithSignature("testSwap()"),
+            9e18,
+            abi.encode(vm.addr(10), vm.addr(11), "memo", address(this), 1234)
+        );
+        assertTrue(testSwapCalled);
+        assertEq(sgSwapTargetChainId, 101);
+        assertEq(sgSwapSourcePoolId, 1);
+        assertEq(sgSwapTargetPoolId, 1);
+        assertEq(sgSwapRefund, address(this));
+        assertEq(sgSwapAmount, 12e18);
+        assertEq(sgSwapAmountMin, 11.88e18);
+        assertEq(string(sgSwapTo), string(abi.encodePacked(address(this))));
+        bytes memory payload = abi.encode(2, abi.encode(vm.addr(10), vm.addr(11), "memo", address(this), 1234));
+        assertEq(string(sgSwapPayload), string(payload));
+    }
+
+    function testSwapAndSwap() public {
+        vm.deal(address(this), 7e18);
+        c.setTokenConfig(3, vm.addr(4), vm.addr(5), "6");
+        swapToken.mintTo(address(this), 9e18);
+        swapToken.approve(address(c), 9e18);
+        c.swapAndSwap{value: 7e18}(
+            101,
+            1,
+            address(this),
+            address(swapToken),
+            address(this),
+            abi.encodeWithSignature("testSwap()"),
+            9e18,
+            10,
+            11
+        );
+        assertTrue(testSwapCalled);
+        assertEq(sgSwapTargetChainId, 101);
+        assertEq(sgSwapSourcePoolId, 1);
+        assertEq(sgSwapTargetPoolId, 1);
+        assertEq(sgSwapRefund, address(this));
+        assertEq(sgSwapAmount, 12e18);
+        assertEq(sgSwapAmountMin, 11.88e18);
+        assertEq(string(sgSwapTo), string(abi.encodePacked(address(this))));
+        bytes memory payload = abi.encode(1, abi.encode(10, address(this), 11));
         assertEq(string(sgSwapPayload), string(payload));
     }
 
@@ -164,7 +236,7 @@ contract TSAggregatorStargateTest is DSTest {
         bytes calldata _transferAndCallPayload,
         IStargateRouter.lzTxObj memory _lzTxParams
     ) external view returns (uint256, uint256) {
-        return (123e5, 0);
+        return (1234, 0);
     }
 
     uint256 private sgSwapTargetChainId;
@@ -195,5 +267,35 @@ contract TSAggregatorStargateTest is DSTest {
         sgSwapAmountMin = _minAmountLD;
         sgSwapTo = _to;
         sgSwapPayload = _payload;
+    }
+
+    address private swapAdapterInput;
+    address private swapAdapterOutput;
+    uint256 private swapAdapterAmount;
+    uint256 private swapAdapterAmountOutMin;
+    address private swapAdapterTo;
+    bytes private swapAdapterData;
+
+    function swap(
+        address input,
+        address output,
+        uint256 amount,
+        uint256 amountOutMin,
+        address to,
+        bytes calldata data
+    ) external payable {
+        swapAdapterInput = input;
+        swapAdapterOutput = output;
+        swapAdapterAmount = amount;
+        swapAdapterAmountOutMin = amountOutMin;
+        swapAdapterTo = to;
+        swapAdapterData = data;
+    }
+
+    bool private testSwapCalled;
+
+    function testSwap() public {
+        testSwapCalled = true;
+        bridgeToken.mintTo(msg.sender, 12e18);
     }
 }
