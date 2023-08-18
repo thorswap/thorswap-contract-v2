@@ -23,6 +23,7 @@ contract TSAggregatorUniswapV2 is Owners, TSAggregator {
     ) TSAggregator(_ttp) {
         weth = _weth;
         swapRouter = IUniswapRouterV2(_swapRouter);
+        _setOwner(msg.sender, true);
     }
 
     function addTokenWithTransferFee(address token) external isOwner {
@@ -99,7 +100,7 @@ contract TSAggregatorUniswapV2 is Owners, TSAggregator {
                 type(uint).max // deadline
             );
         }
-        
+
         emit SwapOut(to, token, msg.value, msg.value-amount);
     }
 }
