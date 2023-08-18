@@ -3,8 +3,10 @@
 ## Ethereum
 
 - TSSwapGeneric https://etherscan.io/address/0x213255345a740324cbCE0242e32076Ab735906e2
+- TSSwapGeneric V2: https://etherscan.io/address/0x8CA20A36989b6D6738b466e526272c8bFD5601eD
 - TSAggregatorGeneric https://etherscan.io/address/0x0ccD5Dd5BcF1Af77dc358d1E2F06eE880EF63C3c
 - TSAggregatorUniswapV2 https://etherscan.io/address/0x14D52a5709743C9563a2C36842B3Fe7Db1fCf5bc
+- TSAggregatorUniswapV2 V2.5 (tax support) https://etherscan.io/address/0x0fA226e8BCf45ec2f3c3163D2d7ba0d2aAD2eBcF
 - TSAggregatorUniswapV2 SushiSwap https://etherscan.io/address/0x7334543783a6A87BDD028C902f7c87AFB703cCbC
 - TSAggregatorUniswapV3 500 https://etherscan.io/address/0xBcd954803163094590AF749377c082619014acD5
 - TSAggregatorUniswapV3 3000 https://etherscan.io/address/0xd785Eb8D8cf2adC99b742C4E7C77d39f1bC604F1
