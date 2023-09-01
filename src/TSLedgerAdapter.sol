@@ -77,40 +77,10 @@ contract TSLedgerAdapter is Owners, ReentrancyGuard {
     ) external payable nonReentrant {
         AggregatorConfig memory config = aggregatorConfigs[aggregatorConfig];
         require(config.aggregator != address(0), "Aggregator must be set.");
-        bytes memory data;
-
-        if (config.interfaceId == 1) {
-            data = abi.encodeWithSignature(
-                "depositWithExpiry(address,address,uint256,string,uint256)",
-                params
-            );
-        } else if (config.interfaceId == 2) {
-            data = abi.encodeWithSignature(
-                "swapIn(address,address,string,address,uint256,address,bytes,uint256)",
-                params
-            );
-        } else if (config.interfaceId == 3) {
-            data = abi.encodeWithSignature(
-                "swapIn(address,address,string,address,uint256,uint256,uint256)",
-                params
-            );
-        } else if (config.interfaceId == 4) {
-            data = abi.encodeWithSignature(
-                "swapIn(address,address,string,address,uint256,uint256,uint256)",
-                params
-            );
-        } else if (config.interfaceId == 5) {
-            data = abi.encodeWithSignature(
-                "swap(address,address,string,address,address,uint256,uint256,uint256)",
-                params
-            );
-        } else {
-            revert("Invalid interfaceId");
-        }
 
         (bool success, bytes memory result) = _executeDelegateCall(
             config.aggregator,
-            data
+            params
         );
 
         require(success, string(result)); // target contract error will bubble up
